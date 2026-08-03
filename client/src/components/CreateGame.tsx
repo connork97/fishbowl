@@ -14,11 +14,9 @@ type FishbowlSettings = {
 
 export function CreateGame({
   user,
-  game,
   setGame,
 }: {
   user: any;
-  game: Game;
   setGame: any;
 }) {
   const [fishbowlSettings, setFishbowlSettings] = useState<FishbowlSettings>({
@@ -31,27 +29,29 @@ export function CreateGame({
   const createGame = async () => {
     try {
 
-      const response = await fetch("http://localhost:5555/create_game", {
+      const response = await fetch("http://localhost:5555/games/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ hostName: user, settings: fishbowlSettings }),
       });
-      const data = await response.json();
-      // const { game } = data;
+      const gameData = await response.json();
       if (response.ok) {
-        // setGame({
-          //   id: game.id,
-          //   code: game.code,
-          //   status: "Setup",
-          //   hostName: game.host_name,
-          //   rounds: game.rounds,
-          //   players: game.players,
-          //   words: game.words,
-          //   teams: game.teams,
-          // });
-          console.log("Game created: ", data);
+        setGame({
+          id: gameData.id,
+          code: gameData.code,
+          hostName: gameData.host_name,
+          players: gameData.players,
+          teams: gameData.teams,
+          words: gameData.words,
+          settings: {
+            rounds: gameData.settings.rounds,
+            wordsPerPlayer: gameData.settings.words_per_player,
+            timePerRound: gameData.settings.time_per_round,
+          },
+          });
+          console.log("Game created: ", gameData);
         }
       } catch (error) {
         console.error("Error creating game:", error);

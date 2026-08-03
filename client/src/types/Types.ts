@@ -1,14 +1,23 @@
 export type Game = {
   id: string;
   code: string;
-  status: string;
+
   hostName: string;
-
-  rounds: string[];
-
   players: string[];
+
+  teams: { name: string; players: string[] }[];
+
+  settings: {
+    rounds: string[];
+    timePerRound: {
+      minutes: number;
+      seconds: number;
+    };
+    wordsPerPlayer: number;
+  };
+  // rounds: string[];
+
   words: string[];
-  teams: string[];
 }
 
 export type User = {
