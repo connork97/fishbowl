@@ -1,7 +1,8 @@
-export interface Game {
+export type Game = {
   id: string;
+  code: string;
   status: string;
-  host: string;
+  hostName: string;
 
   rounds: string[];
 
@@ -10,6 +11,6 @@ export interface Game {
   teams: string[];
 }
 
-export interface User {
+export type User = {
   name: string;
 }
