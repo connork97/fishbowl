@@ -9,3 +9,7 @@ export interface Game {
   words: string[];
   teams: string[];
 }
+
+export interface User {
+  name: string;
+}
