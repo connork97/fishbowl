@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Game, User } from "../types/Types.ts";
-import { useNavigate } from "react-router"; 
+import { useNavigate } from "react-router";
+import { normalizeGameData } from "../utils/normalizeGameData.ts";
 
 type FishbowlSettings = {
   teams: { name: string; players: string[] }[];
@@ -13,16 +14,13 @@ type FishbowlSettings = {
   };
 };
 
-export function CreateGame({
-  user,
-  setGame,
-}: {
-  user: any;
-  setGame: any;
-}) {
+export function CreateGame({ user, setGame }: { user: any; setGame: any }) {
   const navigate = useNavigate();
   const [fishbowlSettings, setFishbowlSettings] = useState<FishbowlSettings>({
-    teams: [{ name: `Team ${user}`, players: [user] }, { name: "Team 2", players: [] }],
+    teams: [
+      { name: `Team ${user}`, players: [user] },
+      { name: "Team 2", players: [] },
+    ],
     wordsPerPlayer: 3,
     rounds: ["Description", "Act It Out", "One Word"],
     timePerRound: { minutes: 1, seconds: 0 },
@@ -39,26 +37,14 @@ export function CreateGame({
       });
       const gameData = await response.json();
       if (response.ok) {
-        setGame({
-          id: gameData.id,
-          code: gameData.code,
-          hostName: gameData.host_name,
-          players: gameData.players,
-          teams: gameData.teams,
-          words: gameData.words,
-          settings: {
-            rounds: gameData.settings.rounds,
-            wordsPerPlayer: gameData.settings.words_per_player,
-            timePerRound: gameData.settings.time_per_round,
-          },
-          });
-          console.log("Game created: ", gameData);
-        }
-        navigate(`/lobby/${gameData.code}`);
-      } catch (error) {
-        console.error("Error creating game:", error);
-        alert("Error creating game. Please try again. " + error);
+        const normalizedGameData = normalizeGameData(gameData);
+        setGame(normalizedGameData);
+        navigate(`/lobby/${normalizedGameData.code}`);
       }
+    } catch (error) {
+      console.error("Error creating game:", error);
+      alert("Error creating game. Please try again. " + error);
+    }
   };
 
   return (

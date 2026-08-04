@@ -85,5 +85,48 @@ def join_game(game_code):
     pretty_print_json(game.to_dict(), GREEN)
     return jsonify(game.to_dict())
 
+@app.route('/games/<string:game_code>/join-team', methods=['PATCH'])
+def add_player_to_team(game_code):
+    form_data = request.get_json()
+    pretty_print_json(form_data)
+    
+    player_name = form_data.get("playerName")
+    team_name = form_data.get("teamName")
+    
+    game = Game.query.filter_by(code=game_code).first()
+    
+    if not game:
+        return jsonify({"error": "Game not found"}), 404
+    
+    if player_name not in game.players:
+        return jsonify({"error": "Player not in the game"}), 400
+
+    team_exists = any(team["name"] == team_name for team in game.teams)
+
+    if not team_exists:
+        return jsonify({"error": "Team not found"}), 404
+
+    updated_teams = []
+
+    for team in game.teams:
+        updated_team = dict(team)
+
+        if team["name"] != team_name and player_name in updated_team["players"]:
+            updated_team["players"] = [
+                p for p in updated_team["players"] if p != player_name
+            ]
+
+        if team["name"] == team_name and player_name not in updated_team["players"]:
+            updated_team["players"] = updated_team["players"] + [player_name]
+
+        updated_teams.append(updated_team)
+
+    game.teams = updated_teams
+    db.session.add(game)
+    db.session.commit()
+    
+    pretty_print_json(game.to_dict(), GREEN)
+    return jsonify(game.to_dict())
+
 if __name__ == "__main__":
     app.run(debug=True, port=5555)

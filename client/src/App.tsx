@@ -3,23 +3,10 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import { CreateGame } from "./components/CreateGame";
 import type { Game } from "./types/Types";
 import Home from "./components/Home";
-import PreGame from "./components/PreGame";
+import Lobby from "./components/Lobby";
 
 function App() {
   const [game, setGame] = useState<Game | null>(null);
-  // {
-  // id: "",
-  // code: "",
-  // hostName: "",
-  // players: [],
-  // words: [],
-  // teams: [],
-  // settings: {
-  //   rounds: ["Description", "Act It Out", "One Word"],
-  //   timePerRound: { minutes: 1, seconds: 0 },
-  //   wordsPerPlayer: 3,
-  // }
-  // }
 
   const [user, setUser] = useState("");
 
@@ -34,7 +21,7 @@ function App() {
           />
           <Route
             path="/lobby/:gameCode"
-            element={<PreGame game={game} setGame={setGame} user={user} />}
+            element={<Lobby game={game} setGame={setGame} user={user} />}
           />
         </Routes>
       </div>
