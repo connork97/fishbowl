@@ -18,7 +18,7 @@ export function CreateGame({ user, setGame }: { user: any; setGame: any }) {
   const navigate = useNavigate();
   const [fishbowlSettings, setFishbowlSettings] = useState<FishbowlSettings>({
     teams: [
-      { name: `Team ${user}`, players: [user] },
+      { name: `Team 1`, players: [user] },
       { name: "Team 2", players: [] },
     ],
     wordsPerPlayer: 3,
@@ -70,7 +70,8 @@ export function CreateGame({ user, setGame }: { user: any; setGame: any }) {
               value={round}
             />
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 const newRounds = fishbowlSettings.rounds.filter(
                   (_, i) => i !== index,
                 );
@@ -82,12 +83,22 @@ export function CreateGame({ user, setGame }: { user: any; setGame: any }) {
           </p>
         ))}
         <button
-          onClick={() =>
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              setFishbowlSettings({
+                ...fishbowlSettings,
+                rounds: [...fishbowlSettings.rounds, ""],
+              });
+            }
+          }}
+          onClick={(e) => {
+            e.preventDefault();
             setFishbowlSettings({
               ...fishbowlSettings,
               rounds: [...fishbowlSettings.rounds, ""],
-            })
-          }
+            });
+          }}
         >
           Add Round
         </button>

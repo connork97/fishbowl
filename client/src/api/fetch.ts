@@ -2,7 +2,7 @@ export const joinGameByCode = async (gameCode: string, user: string) => {
     console.log("Fetching game data for code: ", gameCode);
     try {
       const response = await fetch(`http://localhost:5555/games/${gameCode}/join`, {
-        method: "POST",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },

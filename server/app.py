@@ -44,7 +44,7 @@ def create_game():
     # while ("O" in new_game.code) or ("0" in new_game.code):
     #     print("Code contains O or 0, generating a new code...", new_game.code)
     #     new_game.code = uuid().hex[:4].upper().replace("O" or "0", uuid().hex[:1].upper())
-    
+    new_game.teams[0]["players"] = [host_name]
     db.session.add(new_game)
     db.session.commit()
     
@@ -64,7 +64,7 @@ def get_game(game_code):
     pretty_print_json(game.to_dict(), GREEN)
     return jsonify(game.to_dict())
 
-@app.route('/games/<string:game_code>/join', methods=['POST'])
+@app.route('/games/<string:game_code>/join', methods=['PATCH'])
 def join_game(game_code):
     form_data = request.get_json()
     pretty_print_json(form_data)
@@ -123,6 +123,27 @@ def add_player_to_team(game_code):
 
     game.teams = updated_teams
     db.session.add(game)
+    db.session.commit()
+    
+    pretty_print_json(game.to_dict(), GREEN)
+    return jsonify(game.to_dict())
+
+@app.route('/games/<string:game_code>/add-word', methods=['PATCH'])
+def add_word_to_game(game_code):
+    form_data = request.get_json()
+    pretty_print_json(form_data)
+    
+    word = form_data.get("word")
+    
+    game = Game.query.filter_by(code=game_code).first()
+    
+    if not game:
+        return jsonify({"error": "Game not found"}), 404
+    
+    if word in game.words:
+        return jsonify({"error": "Word already in the game"}), 400
+    
+    game.words = game.words + [word]
     db.session.commit()
     
     pretty_print_json(game.to_dict(), GREEN)
