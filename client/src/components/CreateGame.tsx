@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Game, User } from "../types/Types.ts";
+import { useNavigate } from "react-router"; 
 
 type FishbowlSettings = {
   teams: { name: string; players: string[] }[];
@@ -19,6 +20,7 @@ export function CreateGame({
   user: any;
   setGame: any;
 }) {
+  const navigate = useNavigate();
   const [fishbowlSettings, setFishbowlSettings] = useState<FishbowlSettings>({
     teams: [{ name: `Team ${user}`, players: [user] }, { name: "Team 2", players: [] }],
     wordsPerPlayer: 3,
@@ -28,7 +30,6 @@ export function CreateGame({
 
   const createGame = async () => {
     try {
-
       const response = await fetch("http://localhost:5555/games/create", {
         method: "POST",
         headers: {
@@ -53,6 +54,7 @@ export function CreateGame({
           });
           console.log("Game created: ", gameData);
         }
+        navigate(`/lobby/${gameData.code}`);
       } catch (error) {
         console.error("Error creating game:", error);
         alert("Error creating game. Please try again. " + error);

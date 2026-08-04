@@ -34,7 +34,7 @@ function App() {
           />
           <Route
             path="/lobby/:gameCode"
-            element={<PreGame game={game} user={user} />}
+            element={<PreGame game={game} setGame={setGame} user={user} />}
           />
         </Routes>
       </div>
