@@ -4,6 +4,8 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 
+from flask_socketio import SocketIO
+
 app = Flask(__name__)
 
 
@@ -11,6 +13,8 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"  # Local DB file
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # Disable extra tracking
 app.config["SECRET_KEY"] = "my-secret-key"
 app.json.compact = False  # Pretty Print JSON in dev
+
+socketio = SocketIO(app, cors_allowed_origins="*")  # Allow all origins for SocketIO
 
 # * Database
 db = SQLAlchemy(

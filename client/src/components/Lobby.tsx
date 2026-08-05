@@ -1,8 +1,15 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import type { Game } from "../types/Types";
 import { useEffect, useState } from "react";
-import { getFishbowlGameByCode } from "../api/fetch";
+import {
+  getFishbowlGameByCode,
+  joinFishbowlTeam,
+  addFishbowlWordToGame,
+  setGameStatus,
+} from "../api/fetch";
 import { normalizeGameData } from "../utils/normalizeGameData";
+
+import { socket } from "../socket";
 
 export default function Lobby({
   game,
@@ -13,104 +20,189 @@ export default function Lobby({
   setGame: any;
   user: string;
 }) {
+  const navigate = useNavigate();
   const location = useLocation();
-  const gameCode = location.pathname.split("/").pop();
+  const gameCode = location.pathname.split("/").pop() ?? "";
 
-  // Interval based fetch requests to refresh game data
+  const [socketIsConnected, setSocketIsConnected] = useState(socket.connected);
+
   useEffect(() => {
-    if (!gameCode) return;
-
-    let isCancelled = false;
-
-    const getGameData = async () => {
-      try {
-        const gameData = await getFishbowlGameByCode(gameCode);
-        const normalizedGameData = normalizeGameData(gameData);
-
-        if (!isCancelled) {
-          setGame(normalizedGameData);
-        }
-      } catch (error) {
-        console.error("Failed to refresh game data:", error);
-      }
+    const onConnect = () => {
+      setSocketIsConnected(true);
+      socket.emit("join_game", gameCode);
     };
 
-    void getGameData();
-    const intervalId = window.setInterval(getGameData, 5000);
+    const onJoinGame = (rawGame: any) => {
+      const normalizedGame = normalizeGameData(rawGame);
+      setGame(normalizedGame);
+      console.log("Received join_game event", normalizedGame);
+    };
 
+    const onGameData = (rawGame: any) => {
+      const normalizedGame = normalizeGameData(rawGame);
+      setGame(normalizedGame);
+      console.log("Received game_data event", normalizedGame);
+    };
+    
+    socket.on("connect", onConnect);
+    socket.on("join_game", onJoinGame);
+    socket.on('game_data', onGameData);
+
+    
     return () => {
-      isCancelled = true;
-      window.clearInterval(intervalId);
+      socket.off("connect", onConnect);
+      socket.off("join_game", onJoinGame);
     };
-  }, [gameCode, setGame]);
+  }, []);
+
+  // useEffect(() => {
+  //   if (!socketIsConnected) return;
+
+  //   const onGameUpdate = (rawGame: any) => {
+  //     const normalizedGame = normalizeGameData(rawGame);
+  //     setGame(normalizedGame);
+  //     console.log("Received game update", normalizedGame);
+  //   };
+  //   socket.on("game_update", onGameUpdate);
+
+  //   return () => {
+  //     socket.off("game_update", onGameUpdate);
+  //   };
+  // }, [socketIsConnected]);
+  // Interval based fetch requests to refresh game data
+  // useEffect(() => {
+  //   if (!gameCode) return;
+
+  //   let isCancelled = false;
+
+  //   const getGameData = async () => {
+  //     try {
+  //       const gameData = await getFishbowlGameByCode(gameCode);
+  //       const normalizedGameData = normalizeGameData(gameData);
+
+  //       if (!isCancelled) {
+  //         setGame(normalizedGameData);
+  //       }
+  //     } catch (error) {
+  //       console.error("Failed to refresh game data:", error);
+  //     }
+  //   };
+
+  //   getGameData();
+  //   const intervalId = window.setInterval(getGameData, 10000);
+
+  //   return () => {
+  //     isCancelled = true;
+  //     window.clearInterval(intervalId);
+  //   };
+  // }, [gameCode, setGame]);
+
+  useEffect(() => {
+    const redirectToGame = () => navigate(`/game/${gameCode}`);
+    if (game?.status === "Active") {
+      setTimeout(redirectToGame, 5000);
+    }
+  }, [game?.status]);
 
   const joinTeam = async (teamName: string) => {
-    console.log(
-      `Adding player ${user} to team ${teamName} in game ${gameCode}`,
-    );
-    try {
-      const response = await fetch(
-        `http://localhost:5555/games/${gameCode}/join-team`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ playerName: user, teamName }),
-        },
-      );
-      if (!response.ok) {
-        throw new Error(`Failed to join team: ${response.statusText}`);
-      }
-      const updatedGameData = await response.json();
-      const normalizedGameData = normalizeGameData(updatedGameData);
-      setGame(normalizedGameData);
-    } catch (error) {
-      console.error("Failed to join team:", error);
-      alert("Failed to join team. Please try again.");
+    const updatedGameData = await joinFishbowlTeam(user, teamName, gameCode);
+    if (updatedGameData) {
+      setGame(updatedGameData);
     }
   };
 
   const [newWordInput, setNewWordInput] = useState("");
 
   const submitNewWord = async () => {
-    if (!newWordInput.trim()) {
+    const trimmedWord = newWordInput.trim();
+    if (!trimmedWord) {
       alert("Word cannot be empty.");
       return;
     }
-
-    try {
-      const response = await fetch(
-        `http://localhost:5555/games/${gameCode}/add-word`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ playerName: user, word: newWordInput }),
-        },
-      );
-      if (!response.ok) {
-        throw new Error(`Failed to add word: ${response.statusText}`);
-      }
-      const updatedGameData = await response.json();
-      const normalizedGameData = normalizeGameData(updatedGameData);
-      setGame(normalizedGameData);
+    const updatedGameData = await addFishbowlWordToGame(
+      trimmedWord,
+      user,
+      gameCode,
+    );
+    if (updatedGameData) {
+      setGame(updatedGameData);
       setNewWordInput("");
-    } catch (error) {
-      console.error("Failed to add word:", error);
-      alert("Failed to add word. Please try again.");
+    }
+  };
+
+  const startGame = async () => {
+    if (user !== game?.hostName) {
+      alert("Only the host can start the game.");
+      return;
+    }
+    if (!window.confirm("Are you sure you want to start the game?")) return;
+    const setGameStartingData = await setGameStatus(gameCode, user, "Starting");
+    if (setGameStartingData) {
+      setGame(setGameStartingData);
+      setTimeout(async () => {
+        const setGameActiveData = await setGameStatus(gameCode, user, "Active");
+        if (setGameActiveData) {
+          setGame(setGameActiveData);
+        }
+      }, 5000);
     }
   };
 
   return (
     <>
-      <h1>PreGame Lobby</h1>
-      <h2>Welcome, {user}!</h2>
-      {game ? (
-        <div>
-          <h2>Game Code: {game.code}</h2>
-          <h3>Hosted by: {game.hostName}</h3>
+      {game && user ? (
+        <div
+          style={{
+            pointerEvents:
+              game.status === "Starting" || game.status === "Active"
+                ? "none"
+                : "auto",
+          }}
+        >
+          {(game.status === "Starting" || game.status === "Active") && (
+            <div
+              style={{
+                height: "100dvh",
+                width: "100dvw",
+                position: "absolute",
+                backgroundColor: "rgba(0, 0, 0, 0.9)",
+                pointerEvents: "none",
+              }}
+            >
+              <div
+                style={{
+                  margin: "auto",
+                  position: "absolute",
+                  top: "30%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                <h1>
+                  {game.status === "Starting" && "Game starting soon..."}
+                  {game.status === "Active" && "Redirecting..."}
+                </h1>
+              </div>
+            </div>
+          )}
+          <h1>{game.hostName}'s Fishbowl Lobby</h1>
+          <h1>
+            Game Code:{" "}
+            <b>
+              <u>
+                <em>{game.code}</em>
+              </u>
+            </b>
+          </h1>
+          {user ? (
+            <h2>Welcome, {user}!</h2>
+          ) : (
+            <h2>Uh oh, we don't know your name.</h2>
+          )}
+          <h2>Game Status: {game.status}</h2>
+          {user === game.hostName && (
+            <button onClick={() => startGame()}>Start Game</button>
+          )}
           <h1>Teams:</h1>
 
           <div
@@ -146,13 +238,23 @@ export default function Lobby({
             className="flexRow evenly"
             style={{ margin: "auto", width: "50%" }}
           >
-            <form className="flexColumn" onSubmit={(e) => {
-              e.preventDefault();
-              submitNewWord();
-            }}>
-              <h1>{game.words.length} Words out of {game.settings.wordsPerPlayer * game.players.length}</h1>
+            <form
+              className="flexColumn"
+              onSubmit={(e) => {
+                e.preventDefault();
+                submitNewWord();
+              }}
+            >
+              <h1>
+                {game.words.length} Words out of{" "}
+                {game.settings.wordsPerPlayer * game.players.length}
+              </h1>
 
-              <input type='text' value={newWordInput} onChange={(e) => setNewWordInput(e.target.value)} />
+              <input
+                type="text"
+                value={newWordInput}
+                onChange={(e) => setNewWordInput(e.target.value)}
+              />
               <button type="submit">Add Word</button>
             </form>
           </div>
@@ -184,7 +286,15 @@ export default function Lobby({
           </div>
         </div>
       ) : (
-        <div>Loading...</div>
+        <div>
+          {!user ? (
+            <h1 style={{ marginTop: "30vh" }}>
+              Please go back and enter your name.
+            </h1>
+          ) : (
+            <h1>Loading...</h1>
+          )}
+        </div>
       )}
     </>
   );

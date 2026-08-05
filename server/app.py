@@ -1,5 +1,8 @@
+import socket
+
 from flask import jsonify, request
-from config import app, db
+from flask_socketio import emit, join_room
+from config import app, db, socketio
 from uuid import uuid4 as uuid
 from models import Game
 import json
@@ -14,6 +17,16 @@ def pretty_print_json(data, color=YELLOW):
     print(f"{color}JSON Data:")
     print(json.dumps(data, indent=3))
     print(RESET)
+    
+def pretty_print_message(message, color=YELLOW):
+    print(f"{color}{message}{RESET}")
+
+def publish_game_data(game_code: str):
+    game = Game.query.filter_by(code=game_code).first()
+    if not game:
+        socketio.emit("game_error", {"error": f"Game '{game_code}' not found"}, to=game_code)
+        return
+    socketio.emit("game_data", game.to_dict(), to=game_code)
 
 @app.route("/")
 def hello_world():
@@ -28,10 +41,16 @@ def create_game():
     host_name = form_data.get("hostName")
     form_data_settings = form_data.get("settings")
     teams = form_data_settings.get("teams")
+    time_per_round = form_data_settings.get("timePerRound")
+    minutes = time_per_round.get("minutes")
+    seconds = time_per_round.get("seconds")
     settings = {
         "rounds": form_data_settings.get("rounds"),
         "words_per_player": form_data_settings.get("wordsPerPlayer"),
-        "time_per_round": form_data_settings.get("timePerRound"),
+        "time_per_round": {
+            "minutes": minutes,
+            "seconds": seconds,
+        },
     }
     new_game = Game(
         id=uuid().hex,
@@ -47,6 +66,7 @@ def create_game():
     new_game.teams[0]["players"] = [host_name]
     db.session.add(new_game)
     db.session.commit()
+    publish_game_data(new_game.code)
     
     pretty_print_json(new_game.to_dict(), GREEN)
     return jsonify(new_game.to_dict())
@@ -77,10 +97,11 @@ def join_game(game_code):
         return jsonify({"error": "Game not found"}), 404
     
     if player_name in game.players:
-        return jsonify({"error": "Player already in the game"}), 400
+        return jsonify({"error": f"Player '{player_name}' already in the game"}), 400
     
     game.players = game.players + [player_name]
     db.session.commit()
+    publish_game_data(game_code)
     
     pretty_print_json(game.to_dict(), GREEN)
     return jsonify(game.to_dict())
@@ -124,6 +145,7 @@ def add_player_to_team(game_code):
     game.teams = updated_teams
     db.session.add(game)
     db.session.commit()
+    publish_game_data(game_code)
     
     pretty_print_json(game.to_dict(), GREEN)
     return jsonify(game.to_dict())
@@ -145,9 +167,67 @@ def add_word_to_game(game_code):
     
     game.words = game.words + [word]
     db.session.commit()
+    publish_game_data(game_code)
     
     pretty_print_json(game.to_dict(), GREEN)
     return jsonify(game.to_dict())
 
+@app.route('/games/<string:game_code>/status', methods=['PATCH'])
+def set_status(game_code):
+    form_data = request.get_json()
+    pretty_print_json(form_data)
+    
+    user = form_data.get("user")
+    updated_game_status = form_data.get("status")
+    
+    if not user:
+        return jsonify({"error": "User not provided"}), 400
+    if not updated_game_status:
+        return jsonify({"error": "Status not provided"}), 400
+    
+    game = Game.query.filter_by(code=game_code).first()
+    
+    if not game:
+        return jsonify({"error": "Game not found"}), 404
+    if user not in game.players:
+        return jsonify({"error": "User not in the game"}), 403
+    if user != game.host_name:
+        return jsonify({"error": "Only the host can start the game"}), 403
+    
+    game.status = updated_game_status
+    db.session.commit()
+    publish_game_data(game_code)
+    
+    pretty_print_json(game.to_dict(), GREEN)
+    return jsonify(game.to_dict())
+
+@socketio.on('connect')
+def handle_connect():
+    pretty_print_message('Client connected', color=GREEN)
+    
+@socketio.on('disconnect')
+def handle_disconnect():
+    pretty_print_message('Client disconnected', color=RED)
+
+@socketio.on('join_game')
+def handle_join_game(game_code):
+    pretty_print_message(f'Client joined game {game_code}', color=GREEN)
+    join_room(game_code)
+    publish_game_data(game_code)
+    # game = Game.query.filter_by(code=game_code).first()
+    # if game:
+    #     pretty_print_json(game.to_dict(), GREEN)
+    #     emit('game_data', game.to_dict(), to=game_code)
+
+# @socketio.on('get_first_game')
+# def handle_get_first_game():
+#     pretty_print_message('Client requested first game', color=GREEN)
+#     first_game = Game.query.order_by(Game.id.desc()).first() # fetch the last game instead
+#     if first_game:
+#         pretty_print_json(first_game.to_dict(), GREEN)
+#         # send('first_game', first_game.to_dict())
+#         emit('get_first_game', first_game.to_dict())
+        
 if __name__ == "__main__":
-    app.run(debug=True, port=5555)
+    # app.run(debug=True, port=5555)
+    socketio.run(app)

@@ -33,6 +33,7 @@ class Game(db.Model):
    __tablename__ = 'games'
    id = db.Column(db.String, primary_key=True, unique=True, nullable=False)
    code = db.Column(db.String, nullable=False)
+   status = db.Column(db.String, default='Pre-Game', server_default='Pre-Game')  # Possible values: 'Pre-Game', 'Loading', 'In Progress', 'Completed'
    host_name = db.Column(db.String)
    players = db.Column(db.JSON, default=list)
    words = db.Column(db.JSON, default=list)
@@ -45,6 +46,7 @@ class Game(db.Model):
        return {
            'id': self.id,
            'code': self.code,
+           'status': self.status,
            'host_name': self.host_name,
            'players': self.players,
            'words': self.words,

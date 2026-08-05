@@ -1,6 +1,7 @@
 export type Game = {
   id: string;
   code: string;
+  status: "Pre-Game" | "Starting" | "Loading" | "Active" | "Completed" | "Inactive";
 
   hostName: string;
   players: string[];

@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import type { Game, User } from "../types/Types.ts";
+import { useState } from "react";
 import { useNavigate } from "react-router";
-import { normalizeGameData } from "../utils/normalizeGameData.ts";
+
+import { createFishbowlGame } from "../api/fetch";
 
 type FishbowlSettings = {
   teams: { name: string; players: string[] }[];
@@ -27,24 +27,13 @@ export function CreateGame({ user, setGame }: { user: any; setGame: any }) {
   });
 
   const createGame = async () => {
-    try {
-      const response = await fetch("http://localhost:5555/games/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ hostName: user, settings: fishbowlSettings }),
-      });
-      const gameData = await response.json();
-      if (response.ok) {
-        const normalizedGameData = normalizeGameData(gameData);
-        setGame(normalizedGameData);
-        navigate(`/lobby/${normalizedGameData.code}`);
-      }
-    } catch (error) {
-      console.error("Error creating game:", error);
-      alert("Error creating game. Please try again. " + error);
+    const normalizedGameData = await createFishbowlGame(user, fishbowlSettings);
+    if (!normalizedGameData) {
+      alert("Error creating game. Please try again.");
+      return;
     }
+    setGame(normalizedGameData);
+    navigate(`/lobby/${normalizedGameData.code}`);
   };
 
   return (
@@ -52,6 +41,7 @@ export function CreateGame({ user, setGame }: { user: any; setGame: any }) {
       onSubmit={(e) => {
         e.preventDefault();
         console.log("Creating game with settings: ", fishbowlSettings);
+        if (!user) return alert("Please go back and enter your name before creating a game.");
         createGame();
       }}
     >
