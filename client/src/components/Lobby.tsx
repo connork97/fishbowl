@@ -18,6 +18,8 @@ export default function Lobby({
   setGame: any;
   user: string;
 }) {
+  const timerDelay = 1;
+  
   const navigate = useNavigate();
   const location = useLocation();
   const gameCode = location.pathname.split("/").pop() ?? "";
@@ -27,21 +29,22 @@ export default function Lobby({
     socket.emit("join_game", gameCode);
   }, [gameCode]);
 
-  const [redirectTimer, setRedirectTimer] = useState<number>(5);
+
+  const [redirectTimer, setRedirectTimer] = useState<number>(timerDelay);
 
   useEffect(() => {
     const redirectToGame = () => navigate(`/game/${gameCode}`);
     // set redirectTimer to 5, decrementing every second
     if (game?.status === "Active") {
-      for (let i = 5; i > 0; i--) {
+      for (let i = timerDelay; i > 0; i--) {
         setTimeout(
           () => {
             setRedirectTimer(i);
           },
-          (5 - i) * 1000,
+          (timerDelay - i) * 1000,
         );
       }
-      setTimeout(redirectToGame, 5000);
+      setTimeout(redirectToGame, timerDelay * 1000);
     }
   }, [game?.status]);
 
@@ -85,7 +88,7 @@ export default function Lobby({
         if (setGameActiveData) {
           setGame(setGameActiveData);
         }
-      }, 5000);
+      }, timerDelay * 1000);
     }
   };
 

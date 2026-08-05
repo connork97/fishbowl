@@ -49,15 +49,19 @@ a {
   flex-direction: column;
 }
 
-.evenly {
+.justifyCenter {
+  justify-content: center;
+}
+
+.evenly, .spaceEvenly {
   justify-content: space-evenly;
 }
 
-.between {
+.between, .spaceBetween {
   justify-content: space-between;
 }
 
-.around {
+.around, .spaceAround {
   justify-content: space-around;
 }
 

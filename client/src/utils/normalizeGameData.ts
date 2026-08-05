@@ -10,6 +10,7 @@ export const normalizeGameData = (apiGameData: any): Game => {
       teams: apiGameData.teams.map((team: any) => ({
          name: team.name,
          players: team.players,
+         score: team.score,
       })),
       settings: {
          rounds: apiGameData.settings.rounds,
@@ -20,6 +21,7 @@ export const normalizeGameData = (apiGameData: any): Game => {
          wordsPerPlayer: apiGameData.settings.words_per_player,
       },
       words: apiGameData.words,
+      availableWords: apiGameData.available_words,
    };
 
    return normalizedGameData;

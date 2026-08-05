@@ -6,7 +6,7 @@ export type Game = {
   hostName: string;
   players: string[];
 
-  teams: { name: string; players: string[] }[];
+  teams: { name: string; players: string[]; score: number }[];
 
   settings: {
     rounds: string[];
@@ -19,6 +19,7 @@ export type Game = {
   // rounds: string[];
 
   words: string[];
+  availableWords: string[];
 }
 
 export type User = {

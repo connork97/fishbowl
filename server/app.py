@@ -150,6 +150,44 @@ def add_player_to_team(game_code):
     pretty_print_json(game.to_dict(), GREEN)
     return jsonify(game.to_dict())
 
+@app.route('/games/<string:game_code>/update-team', methods=['PATCH'])
+def update_team(game_code):
+    form_data = request.get_json()
+    pretty_print_json(form_data)
+    
+    team_name = form_data.get("teamName")
+    updated_players = form_data.get("players")
+    score = form_data.get("score")
+    
+    game = Game.query.filter_by(code=game_code).first()
+    
+    if not game:
+        return jsonify({"error": "Game not found"}), 404
+    
+    team_exists = any(team["name"] == team_name for team in game.teams)
+
+    if not team_exists:
+        return jsonify({"error": "Team not found"}), 404
+
+    updated_teams = []
+
+    for team in game.teams:
+        updated_team = dict(team)
+
+        if team["name"] == team_name:
+            updated_team["players"] = updated_players
+            updated_team["score"] = score
+
+        updated_teams.append(updated_team)
+
+    game.teams = updated_teams
+    db.session.add(game)
+    db.session.commit()
+    publish_game_data(game_code)
+    
+    pretty_print_json(game.to_dict(), GREEN)
+    return jsonify(game.to_dict())
+
 @app.route('/games/<string:game_code>/add-word', methods=['PATCH'])
 def add_word_to_game(game_code):
     form_data = request.get_json()
@@ -166,6 +204,7 @@ def add_word_to_game(game_code):
         return jsonify({"error": "Word already in the game"}), 400
     
     game.words = game.words + [word]
+    game.available_words = game.available_words + [word]
     db.session.commit()
     publish_game_data(game_code)
     
@@ -178,7 +217,7 @@ def set_status(game_code):
     pretty_print_json(form_data)
     
     user = form_data.get("user")
-    updated_game_status = form_data.get("status")
+    updated_game_status = form_data.get("status")    
     
     if not user:
         return jsonify({"error": "User not provided"}), 400
