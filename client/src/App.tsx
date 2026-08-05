@@ -12,60 +12,44 @@ function App() {
   const [game, setGame] = useState<Game | null>(null);
   const [user, setUser] = useState("");
 
-  // const [socketIsConnected, setSocketIsConnected] = useState(socket.connected);
-
   // * Connect to Socket Effect * //
-  // useEffect(() => {
-  //   const onConnect = () => {
-  //     setSocketIsConnected(true);
-  //     console.log("Socket connected:", socket.id);
-  //   };
+  const [socketIsConnected, setSocketIsConnected] = useState(socket.connected);
 
-  //   const onDisconnect = () => {
-  //     setSocketIsConnected(false);
-  //     console.log("Socket disconnected");
-  //   };
+  useEffect(() => {
+    // if (!game) return;
+    const onConnect = () => {
+      setSocketIsConnected(true);
+      // socket.emit("join_game", game?.code);
+    };
 
-  //   socket.on("connect", onConnect);
-  //   socket.on("disconnect", onDisconnect);
+    const onDisconnect = () => {
+      setSocketIsConnected(false);
+    };
 
-  //   return () => {
-  //     socket.off("connect", onConnect);
-  //     socket.off("disconnect", onDisconnect);
-  //   };
-  // }, []);
-  // useEffect(() => {
-  //   const onConnect = () => {
-  //     setSocketIsConnected(true);
-  //     socket.emit("get_first_game");
-  //   };
+    const onGameData = (rawGame: any) => {
+      const normalizedGame = normalizeGameData(rawGame);
+      setGame(normalizedGame);
+      console.log("Received game_data event", normalizedGame);
+    };
 
-  //   const onDisconnect = () => {
-  //     setSocketIsConnected(false);
-  //   };
+    // const onJoinGame = (rawGame: any) => {
+      // const normalizedGame = normalizeGameData(rawGame);
+      // setGame(normalizedGame);
+      // console.log("Received join_game event", normalizedGame);
+    // };
 
-  //   function onFirstGameEvent(rawGame: any) {
-  //     const normalizedGame = normalizeGameData(rawGame);
-  //     setGame(normalizedGame);
-  //     setFooEvents((previous) => [...previous, normalizedGame.code]);
-  //     console.log("Received first game", normalizedGame);
-  //   }
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.on("game_data", onGameData);
+    // socket.on("join_game", onJoinGame);
 
-  //   socket.on("connect", onConnect);
-  //   socket.on("disconnect", onDisconnect);
-  //   socket.on("get_first_game", onFirstGameEvent);
-
-  //   console.log("SOCKET DATA: ", socket);
-  //   return () => {
-  //     socket.off("connect", onConnect);
-  //     socket.off("disconnect", onDisconnect);
-  //     socket.off("get_first_game", onFirstGameEvent);
-  //   };
-  // }, [socketIsConnected]);
-
-  // if (!socketIsConnected) {
-  //   return <h1 style={{textAlign: 'center', marginTop: '20%'}}>Connecting to server...</h1>;
-  // }
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+      socket.off("game_data", onGameData);
+      // socket.off("join_game", onJoinGame);
+    };
+  }, []);
 
   return (
     <BrowserRouter>

@@ -1,8 +1,4 @@
-import { getFishbowlGameByCode } from "../api/fetch";
 import type { Game } from "../types/Types";
-import { normalizeGameData } from "../utils/normalizeGameData";
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
 
 export default function Fishbowl({
   game,
@@ -11,20 +7,7 @@ export default function Fishbowl({
   game: Game | null;
   setGame: any;
 }) {
-  const location = useLocation();
-  const gameCode = location.pathname.split("/").pop();
 
-  useEffect(() => {
-    const fetchGameData = async () => {
-      if (!gameCode) return;
-
-      const gameData = await getFishbowlGameByCode(gameCode);
-      const normalizedGameData = normalizeGameData(gameData);
-      setGame(normalizedGameData);
-    };
-
-    fetchGameData();
-  }, [gameCode, setGame]);
 
   return (
     <div>

@@ -2,12 +2,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import type { Game } from "../types/Types";
 import { useEffect, useState } from "react";
 import {
-  getFishbowlGameByCode,
   joinFishbowlTeam,
   addFishbowlWordToGame,
   setGameStatus,
 } from "../api/fetch";
-import { normalizeGameData } from "../utils/normalizeGameData";
 
 import { socket } from "../socket";
 
@@ -24,82 +22,25 @@ export default function Lobby({
   const location = useLocation();
   const gameCode = location.pathname.split("/").pop() ?? "";
 
-  const [socketIsConnected, setSocketIsConnected] = useState(socket.connected);
-
   useEffect(() => {
-    const onConnect = () => {
-      setSocketIsConnected(true);
-      socket.emit("join_game", gameCode);
-    };
+    if (!gameCode) return;
+    socket.emit("join_game", gameCode);
+  }, [gameCode]);
 
-    const onJoinGame = (rawGame: any) => {
-      const normalizedGame = normalizeGameData(rawGame);
-      setGame(normalizedGame);
-      console.log("Received join_game event", normalizedGame);
-    };
-
-    const onGameData = (rawGame: any) => {
-      const normalizedGame = normalizeGameData(rawGame);
-      setGame(normalizedGame);
-      console.log("Received game_data event", normalizedGame);
-    };
-    
-    socket.on("connect", onConnect);
-    socket.on("join_game", onJoinGame);
-    socket.on('game_data', onGameData);
-
-    
-    return () => {
-      socket.off("connect", onConnect);
-      socket.off("join_game", onJoinGame);
-    };
-  }, []);
-
-  // useEffect(() => {
-  //   if (!socketIsConnected) return;
-
-  //   const onGameUpdate = (rawGame: any) => {
-  //     const normalizedGame = normalizeGameData(rawGame);
-  //     setGame(normalizedGame);
-  //     console.log("Received game update", normalizedGame);
-  //   };
-  //   socket.on("game_update", onGameUpdate);
-
-  //   return () => {
-  //     socket.off("game_update", onGameUpdate);
-  //   };
-  // }, [socketIsConnected]);
-  // Interval based fetch requests to refresh game data
-  // useEffect(() => {
-  //   if (!gameCode) return;
-
-  //   let isCancelled = false;
-
-  //   const getGameData = async () => {
-  //     try {
-  //       const gameData = await getFishbowlGameByCode(gameCode);
-  //       const normalizedGameData = normalizeGameData(gameData);
-
-  //       if (!isCancelled) {
-  //         setGame(normalizedGameData);
-  //       }
-  //     } catch (error) {
-  //       console.error("Failed to refresh game data:", error);
-  //     }
-  //   };
-
-  //   getGameData();
-  //   const intervalId = window.setInterval(getGameData, 10000);
-
-  //   return () => {
-  //     isCancelled = true;
-  //     window.clearInterval(intervalId);
-  //   };
-  // }, [gameCode, setGame]);
+  const [redirectTimer, setRedirectTimer] = useState<number>(5);
 
   useEffect(() => {
     const redirectToGame = () => navigate(`/game/${gameCode}`);
+    // set redirectTimer to 5, decrementing every second
     if (game?.status === "Active") {
+      for (let i = 5; i > 0; i--) {
+        setTimeout(
+          () => {
+            setRedirectTimer(i);
+          },
+          (5 - i) * 1000,
+        );
+      }
       setTimeout(redirectToGame, 5000);
     }
   }, [game?.status]);
@@ -180,7 +121,8 @@ export default function Lobby({
               >
                 <h1>
                   {game.status === "Starting" && "Game starting soon..."}
-                  {game.status === "Active" && "Redirecting..."}
+                  {game.status === "Active" &&
+                    `Redirecting in ${redirectTimer}...`}
                 </h1>
               </div>
             </div>
