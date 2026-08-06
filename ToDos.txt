@@ -1,0 +1,8 @@
+WHERE I LEFT OFF:
+
+I just created a (theoretically correct) normalization function on the back end
+   For taking in a whole new game object, and updating the current one
+
+It is not reflecting the proper changes via Socket.io though
+   On the first player's end, when the timer expires, it momentarily switches to the next team/player
+      But then immediately reverts back to player 1/team 1

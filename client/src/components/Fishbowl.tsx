@@ -10,28 +10,30 @@ export default function Fishbowl({
   setGame: any;
   user: string;
 }) {
-  // const randomizedWordsArr = game?.words ? randomizeArray(game.words) : [];
   const [successfullyGuessedWords, setSuccessfullyGuessedWords] = useState<
     string[]
   >([]);
-  // const availableWords = game?.available_words ?? [];
-  // const [randomizedWordsArr, setRandomizedWordsArr] = useState<string[]>([]);
   const availableWords = game?.availableWords ?? [];
 
-  useEffect(() => {
-    if (game?.availableWords) {
-      const randomizedAvailableWords = randomizeArray(game.availableWords);
-      setGame((prevGame: Game | null) => ({
-        ...prevGame,
-        availableWords: randomizedAvailableWords,
-      }));
-    }
-  }, []);
+  const randomizeAvailableWords = () => {
+    const randomizedWords = randomizeArray(game?.availableWords ?? []);
+    setGame((prevGame: Game | null) => ({
+      ...prevGame,
+      availableWords: randomizedWords,
+    }));
+  };
+
+  // useEffect(() => {
+  //   if (game?.availableWords) {
+  //     randomizeAvailableWords();
+  //   }
+  // }, []);
 
   const [activeWordIndex, setActiveWordIndex] = useState(0);
-  const [activeRoundIndex, setActiveRoundIndex] = useState(0);
-  const [activeTeamIndex, setActiveTeamIndex] = useState(0);
-  const [activePlayerIndex, setActivePlayerIndex] = useState(0);
+  const activeRoundIndex = game?.settings.roundIndex || 0;
+  let activeTeamIndex = game?.settings.teamIndex || 0;
+  const activeTeam = game?.teams[activeTeamIndex];
+  let activePlayerIndex = activeTeam?.playerIndex || 0;
 
   const currentRound = game?.settings.rounds[activeRoundIndex];
   const currentPlayer = game?.teams[activeTeamIndex].players[activePlayerIndex];
@@ -40,10 +42,11 @@ export default function Fishbowl({
 
   const [roundHasStarted, setRoundHasStarted] = useState(false);
   const [roundTimerIsActive, setRoundTimerIsActive] = useState(false);
-  const [roundTimer, setRoundTimer] = useState(
+  const roundTimerInSeconds =
     (game?.settings?.timePerRound?.minutes ?? 0) * 60 +
-      (game?.settings?.timePerRound?.seconds ?? 0) || 60,
-  );
+      (game?.settings?.timePerRound?.seconds ?? 0) || 60;
+
+  const [roundTimer, setRoundTimer] = useState(roundTimerInSeconds);
 
   useEffect(() => {
     if (!roundHasStarted || !roundTimerIsActive || roundTimer <= 0) return;
@@ -78,26 +81,96 @@ export default function Fishbowl({
     }
   };
 
-  const handleRoundEnd = () => {
-    // setRoundHasStarted(false);
+  const changeTurn = async (updatedGame: Game) => {
+    if (!updatedGame?.code) return;
+
+    const response = await fetch(
+      `http://localhost:5555/games/${updatedGame.code}/update`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(updatedGame),
+      },
+    );
+
+    if (!response.ok) {
+      console.error(
+        "change-turn request failed",
+        response.status,
+        response.statusText,
+      );
+    }
+    setRoundHasStarted(false);
     setRoundTimerIsActive(false);
+    setRoundTimer(roundTimerInSeconds);
+    setSuccessfullyGuessedWords([]);
+    setActiveWordIndex(0);
+  };
+
+  const handleOutOfTime = async () => {
+    if (!activeTeam) return console.error("Active team is null or undefined");
+    if (!game) return console.error("Game data is null or undefined");
+
+    // * Once the current team's turn is over, set the next player in line for their next turn
+    let nextPlayerIndex = activePlayerIndex + 1;
+    if (activeTeam?.players.length <= nextPlayerIndex) {
+      nextPlayerIndex = 0;
+    }
+
+    let currentTeamIndex = activeTeamIndex;
+    let nextTeamIndex = activeTeamIndex + 1;
+
+    // * Switch to the next team in line
+    if (nextTeamIndex >= game?.teams.length) {
+      nextTeamIndex = 0;
+    }
+
+
+    // * Create a copy of the game state, and update teams, settings, and availableWords for the rest of the round
+    const updatedTeams = [...game.teams];
+    updatedTeams[currentTeamIndex] = {
+      ...updatedTeams[currentTeamIndex],
+      score:
+        updatedTeams[currentTeamIndex].score + successfullyGuessedWords.length,
+      playerIndex: nextPlayerIndex,
+    };
+
+    const updatedSettings = {
+      ...game.settings,
+      teamIndex: nextTeamIndex,
+    };
+
+    // * Final updated game, updating both state and sending to backend
+    const updatedGame = {
+      ...game,
+      teams: updatedTeams,
+      settings: updatedSettings,
+      availableWords: availableWords,
+    };
+
+    setGame(updatedGame);
+    changeTurn(updatedGame);
   };
 
   useEffect(() => {
-    if (availableWords.length === 0 || roundTimer <= 0) {
-      handleRoundEnd();
+    if (roundHasStarted && roundTimer === 0) {
+      handleOutOfTime();
     }
-  }, [availableWords, roundTimer]);
+  }, [roundTimer]);
 
   const handlePassWord = () => {
     let nextWordIndex = activeWordIndex + 1;
     if (nextWordIndex >= availableWords.length) {
-      nextWordIndex = 0; // Loop back to the first word
+      nextWordIndex = 0;
     }
     setActiveWordIndex(nextWordIndex);
   };
 
   const handleRoundStart = () => {
+    randomizeAvailableWords();
     setRoundHasStarted(true);
     setRoundTimerIsActive(true);
   };
@@ -112,7 +185,9 @@ export default function Fishbowl({
           </h2>
           <h2>Team: {currentTeam}</h2>
           <h2>Player: {currentPlayer}</h2>
-          <h2>Score: {successfullyGuessedWords.length}</h2>
+          <h2>
+            Score: {successfullyGuessedWords.length + (activeTeam?.score ?? 0)}
+          </h2>
           {user === currentPlayer && (
             <div>
               {!roundHasStarted ? (

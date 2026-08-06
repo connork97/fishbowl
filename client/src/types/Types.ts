@@ -1,27 +1,39 @@
 export type Game = {
   id: string;
   code: string;
-  status: "Pre-Game" | "Starting" | "Loading" | "Active" | "Completed" | "Inactive";
+  status:
+    | "Pre-Game"
+    | "Starting"
+    | "Loading"
+    | "Active"
+    | "Completed"
+    | "Inactive";
 
   hostName: string;
   players: string[];
-
-  teams: { name: string; players: string[]; score: number }[];
+  teams: {
+    name: string;
+    players: string[];
+    playerIndex: number;
+    score: number;
+  }[];
 
   settings: {
     rounds: string[];
+    roundIndex: number;
+    teamIndex: number;
+    wordsPerPlayer: number;
     timePerRound: {
       minutes: number;
       seconds: number;
     };
-    wordsPerPlayer: number;
+    remainingTime: number;
   };
-  // rounds: string[];
 
   words: string[];
   availableWords: string[];
-}
+};
 
 export type User = {
   name: string;
-}
+};

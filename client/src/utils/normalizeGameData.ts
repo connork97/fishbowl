@@ -11,14 +11,18 @@ export const normalizeGameData = (apiGameData: any): Game => {
          name: team.name,
          players: team.players,
          score: team.score,
+         playerIndex: team.player_index,
       })),
       settings: {
          rounds: apiGameData.settings.rounds,
-         timePerRound: {
-            minutes: apiGameData.settings.time_per_round?.minutes || 1,
-            seconds: apiGameData.settings.time_per_round?.seconds || 0,
-         },
+         roundIndex: apiGameData.settings.round_index,
+         teamIndex: apiGameData.settings.team_index,
          wordsPerPlayer: apiGameData.settings.words_per_player,
+         timePerRound: {
+            minutes: apiGameData.settings.time_per_round.minutes,
+            seconds: apiGameData.settings.time_per_round.seconds,
+         },
+         remainingTime: apiGameData.settings.remaining_time
       },
       words: apiGameData.words,
       availableWords: apiGameData.available_words,

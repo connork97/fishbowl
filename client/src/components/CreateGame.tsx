@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { createFishbowlGame } from "../api/fetch";
 
 type FishbowlSettings = {
-  teams: { name: string; players: string[] }[];
+  teams: { name: string; players: string[]; }[];
   wordsPerPlayer: number;
 
   rounds: string[];
