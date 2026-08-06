@@ -1,3 +1,4 @@
+import type { Game } from "../types/Types";
 import { normalizeGameData } from "../utils/normalizeGameData";
 
 export const getFishbowlGameByCode = async (gameCode: string) => {
@@ -163,5 +164,36 @@ export const setGameStatus = async (
   } catch (error) {
     console.error("Failed to set game status:", error);
     alert("Failed to set game status. Please try again.");
+  }
+};
+
+export const updateFishbowlGame = async (updatedGame: Game) => {
+  if (!updatedGame?.code) return console.error("Game code is missing in the updated game data");
+  try {
+    const response = await fetch(
+      `http://localhost:5555/games/${updatedGame.code}/update`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(updatedGame),
+      },
+    );
+    
+    const gameData = await response.json();
+    if (!response.ok) {
+      console.error(
+        "change-turn request failed",
+        response.status,
+        response.statusText,
+      );
+    }
+    const normalizedGameData = normalizeGameData(gameData);
+    return normalizedGameData;
+  } catch (error) {
+    console.error("Failed to update game:", error);
+    alert("Failed to update game. Please try again.");
   }
 };

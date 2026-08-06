@@ -6,7 +6,7 @@ export type Game = {
     | "Starting"
     | "Loading"
     | "Active"
-    | "Completed"
+    | "Complete"
     | "Inactive";
 
   hostName: string;
