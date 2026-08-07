@@ -135,102 +135,109 @@ export default function Lobby({
           </div>
         </div>
       )}
-      <div className="verticalWrapperMain">
-        <h1 className="titleMain">{game.hostName}'s Fishbowl Lobby</h1>
-        <h1 className="titleMain">Game Code: {game.code}</h1>
-        {/* {user ? (
+      {game.status !== "Starting" && game.status !== "Active" && (
+        <>
+          <div className="verticalWrapperMain">
+            <h1 className="titleMain">{game.hostName}'s Fishbowl Lobby</h1>
+            <h1 className="titleMain">Game Code: {game.code}</h1>
+            {/* {user ? (
           <h2 className="headerMain">Welcome, {user}!</h2>
-        ) : (
+          ) : (
           <h2 className="headerMain">Uh oh, we don't know your name.</h2>
         )} */}
-        <h2 className="headerMain">Game Status: {game.status}</h2>
-        {user === game.hostName && (
-          <button className="buttonMain" onClick={() => startGame()}>
-            Start Game
-          </button>
-        )}
-        <div className="verticalWrapperMain">
-          <h2 className="titleMain">Teams:</h2>
-          <div
-            className="horizontalWrapperMain"
-            style={{ height: "max-content", gap: "1rem", flexWrap: "wrap" }}
-          >
+            <h2 className="headerMain">Game Status: {game.status}</h2>
+            {user === game.hostName && (
+              <button className="buttonMain" onClick={() => startGame()}>
+                Start Game
+              </button>
+            )}
             <div className="verticalWrapperMain">
-              <h3 className="headerMain">Free Agents</h3>
-              {game.players.map((player, index) => {
-                const isOnTeam = game.teams.some((team) =>
-                  team.players.includes(player),
-                );
-                if (!isOnTeam) {
-                  return <p key={index}>{player}</p>;
-                }
-              })}
-            </div>
-            {game.teams.map((team, index) => (
+              <h2 className="titleMain">Teams:</h2>
               <div
-                key={index}
-                className="verticalWrapperMain"
-                style={{ height: "100%" }}
+                className="horizontalWrapperMain"
+                style={{ height: "max-content", gap: "1rem", flexWrap: "wrap" }}
               >
-                <h3 className="headerMain">{team.name}</h3>
-                {team.players.map((player, playerIndex) => (
-                  <p key={playerIndex}>{player}</p>
+                <div className="verticalWrapperMain">
+                  <h3 className="headerMain">Free Agents</h3>
+                  {game.players.map((player, index) => {
+                    const isOnTeam = game.teams.some((team) =>
+                      team.players.includes(player),
+                    );
+                    if (!isOnTeam) {
+                      return <p key={index}>{player}</p>;
+                    }
+                  })}
+                </div>
+                {game.teams.map((team, index) => (
+                  <div
+                    key={index}
+                    className="verticalWrapperMain"
+                    style={{ height: "100%" }}
+                  >
+                    <h3 className="headerMain">{team.name}</h3>
+                    {team.players.map((player, playerIndex) => (
+                      <p key={playerIndex}>{player}</p>
+                    ))}
+                    <button
+                      className="buttonMain buttonSmall"
+                      onClick={() => joinTeam(team.name)}
+                    >
+                      Join Team
+                    </button>
+                  </div>
                 ))}
-                <button
-                  className="buttonMain buttonSmall"
-                  onClick={() => joinTeam(team.name)}
-                >
-                  Join Team
-                </button>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      </div>
-      <div className="verticalWrapperMain">
-        <form
-          className="verticalWrapperMain"
-          onSubmit={(e) => {
-            e.preventDefault();
-            submitNewWord();
-          }}
-        >
-          <h1 className="titleMain">
-            {game.words.length} Words out of{" "}
-            {game.settings.wordsPerPlayer * game.players.length}
-          </h1>
+          <div className="horizontalWrapperMain">
+            <div className="verticalWrapperMain">
+              <h3 className="headerMain alignLeft">Rounds:</h3>
+              {game.settings.rounds.map((round, index) => (
+                <div key={index} className="alignLeft">
+                  <p className="alignLeft">
+                    <b>Round {index + 1}:</b>{" "}
+                  </p>
+                  <p className="alignLeft" style={{ marginLeft: "0.5rem" }}>
+                    {round}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="verticalWrapperMain">
+              <h3 className="headerMain alignLeft">Time per Round:</h3>
+              <p className="alignLeft">
+                {game.settings.timePerRound.minutes} minutes and{" "}
+                {game.settings.timePerRound.seconds} seconds
+              </p>
+              <h3 className="headerMain alignLeft">Words per Player:</h3>
+              <p className="alignLeft">{game.settings.wordsPerPlayer}</p>
+            </div>
+          </div>
+          <div className="verticalWrapperMain">
+            <form
+              className="verticalWrapperMain"
+              onSubmit={(e) => {
+                e.preventDefault();
+                submitNewWord();
+              }}
+            >
+              <h1 className="titleMain">
+                {game.words.length} Words out of{" "}
+                {game.settings.wordsPerPlayer * game.players.length}
+              </h1>
 
-          <input
-            type="text"
-            value={newWordInput}
-            onChange={(e) => setNewWordInput(e.target.value)}
-          />
-          <button type="submit" className="buttonMain">
-            Add Word
-          </button>
-        </form>
-      </div>
-      <div className="horizontalWrapperMain">
-        <div className="verticalWrapperMain">
-          <h3 className="headerMain">Rounds:</h3>
-          {game.settings.rounds.map((round, index) => (
-            <p key={index}>
-              <b>Round {index + 1}:</b> <p>{round}</p>
-            </p>
-          ))}
-        </div>
-        <div className="verticalWrapperMain">
-          <h3 className="headerMain">Time per Round:</h3>
-          <p>
-            {game.settings.timePerRound.minutes} minutes and{" "}
-            {game.settings.timePerRound.seconds} seconds
-          </p>
-        </div>
-        <div className="verticalWrapperMain">
-          <h3 className="headerMain">Words per Player:</h3>
-          <p>{game.settings.wordsPerPlayer}</p>
-        </div>
-      </div>
+              <input
+                type="text"
+                value={newWordInput}
+                onChange={(e) => setNewWordInput(e.target.value)}
+              />
+              <button type="submit" className="buttonMain">
+                Add Word
+              </button>
+            </form>
+          </div>
+        </>
+      )}
     </div>
   );
 }

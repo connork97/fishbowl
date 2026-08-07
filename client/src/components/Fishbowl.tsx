@@ -2,6 +2,10 @@ import { updateFishbowlGame } from "../api/fetch";
 import type { Game } from "../types/Types";
 import { randomizeArray } from "../utils/randomizeArray";
 import { useEffect, useState } from "react";
+
+import "../App.css";
+import { useNavigate } from "react-router-dom";
+
 export default function Fishbowl({
   game,
   setGame,
@@ -11,6 +15,9 @@ export default function Fishbowl({
   setGame: any;
   user: string;
 }) {
+
+  const navigate = useNavigate();
+
   const [successfullyGuessedWords, setSuccessfullyGuessedWords] = useState<
     string[]
   >([]);
@@ -111,14 +118,22 @@ export default function Fishbowl({
     }
     setGame(updatedGame);
     await updateFishbowlGame(updatedGame);
+    setSuccessfullyGuessedWords([]);
   };
 
   useEffect(() => {
     console.log("available words: ", availableWords);
-    if (availableWords.length === 0 && roundHasStarted) {
+    if (!roundHasStarted) return;
+    if (availableWords.length === 0 && roundTimer > 0) {
       handleRoundEnd();
     }
-  }, [availableWords]);
+    if (roundTimer === 0 && availableWords.length > 0) {
+      handleOutOfTime();
+    }
+  }, [availableWords, roundTimer]);
+
+  // useEffect(() => {
+  // }, [roundTimer]);
 
   const changeTurn = async (updatedGame: Game) => {
     if (!updatedGame?.code) return;
@@ -177,11 +192,11 @@ export default function Fishbowl({
     changeTurn(updatedGame);
   };
 
-  useEffect(() => {
-    if (roundHasStarted && roundTimer === 0) {
-      handleOutOfTime();
-    }
-  }, [roundTimer]);
+  // useEffect(() => {
+  //   if (roundHasStarted && roundTimer === 0) {
+  //     handleOutOfTime();
+  //   }
+  // }, [roundTimer]);
 
   const handlePassWord = () => {
     let nextWordIndex = activeWordIndex + 1;
@@ -199,54 +214,66 @@ export default function Fishbowl({
 
   if (game?.status === "Complete") {
     return (
-      <div style={{ margin: "auto" }}>
-        <h1>Game Over</h1>
-        <h2>Final Scores:</h2>
+      <div className="containerMain">
+        <div className="verticalWrapperMain">
+        <h1 className="titleMain">Game Over</h1>
+        <h2 className="titleMain">Final Scores:</h2>
         {game.teams.map((team, index) => (
           <div key={index}>
-            <h3>{team.name}</h3>
-            <p>Score: {team.score}</p>
+            <h3 className="titleMain">{team.name}</h3>
+            <p className="headerMain">Score: {team.score}</p>
           </div>
         ))}
+        <button className="buttonMain" onClick={() => navigate("/")}>Back to Home</button>
+        </div>
       </div>
     );
   }
 
   if (!game) {
     return (
-      <div style={{ margin: "auto" }}>
-        <h1>Loading game data...</h1>
+      <div className="containerMain">
+        <h1 className="titleMain">Loading game data...</h1>
       </div>
     );
   }
 
   return (
-    <div style={{ margin: "auto" }}>
-      <h1>Game Component</h1>
-      <div>
-        <h2>
-          Round {activeRoundIndex + 1}: {currentRound}
-        </h2>
-        <h2>Team: {currentTeam}</h2>
-        <h2>Player: {currentPlayer}</h2>
-        <h2>
-          Score: {successfullyGuessedWords.length + (activeTeam?.score ?? 0)}
-        </h2>
+    <div className="containerMain">
+      <h1 className="titleMain">Game Component</h1>
+      <div className="verticalWrapperMain">
+        {user !== currentPlayer ? (
+          <>
+            <h2 className="headerMain">
+              Round {activeRoundIndex + 1}: {currentRound}
+            </h2>
+            <h2 className="headerMain">Team: {currentTeam}</h2>
+            <h2 className="headerMain">Player: {currentPlayer}</h2>
+            <h2 className="headerMain">
+              Score:{" "}
+              {successfullyGuessedWords.length + (activeTeam?.score ?? 0)}
+            </h2>
+          </>
+        ) : (
+        <>
+        <h1>You're up {user}</h1>
+
+        </>)}
         {user === currentPlayer && (
           <div>
             {!roundHasStarted ? (
-              <button onClick={handleRoundStart}>Start Round</button>
+              <button className="buttonMain" onClick={handleRoundStart}>Start Round</button>
             ) : (
               <div>
-                <h3>Time Remaining: {roundTimer} seconds</h3>
-                <h3>Words Remaining: {availableWords.length}</h3>
+                <h3 className="headerMain">Time Remaining: {roundTimer} seconds</h3>
+                <h3 className="headerMain">Words Remaining: {availableWords.length}</h3>
                 {availableWords.length > 0 && (
-                  <div className="flexColumn justifyCenter">
-                    <h3>Current Word: {currentWord}</h3>
-                    <div className="flexRow justifyCenter">
-                      <button onClick={handleSuccessfulGuess}>Got it</button>
+                  <div className="verticalWrapperMain" style={{gap: '5rem'}}>
+                    <h3 className="titleMain">Current Word: {currentWord}</h3>
+                    <div className="verticalWrapperMain" style={{gap: '5rem'}}>
+                      <button className="guessWordButton successButton" onClick={handleSuccessfulGuess}>Got it</button>
                       {availableWords.length > 1 && (
-                        <button onClick={handlePassWord}>Pass</button>
+                        <button className="guessWordButton passButton" onClick={handlePassWord}>Pass</button>
                       )}
                     </div>
                   </div>

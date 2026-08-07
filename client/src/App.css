@@ -1,7 +1,7 @@
 /* Intentionally left blank for a clean slate. */
 .app {
   position: relative;
-  height: 100dvh;
+  min-height: 100dvh;
   width: 100dvw;
   margin: auto;
   /* text-align: center; */
@@ -17,13 +17,7 @@
   position: relative;
   height: 100%;
   width: 100%;
-
-  /* padding-top: 1.5rem; */
-  /* display: flex; */
-  /* flex-direction: column; */
-  /* align-items: center; */
-  /* text-align: center; */
-  /* gap: 1rem; */
+  padding: 1rem;
 }
 
 .verticalWrapperMain {
@@ -47,7 +41,6 @@
 .horizontalWrapperMain {
    position: relative;
    width: fit-content;
-   /* justify-content: space-evenly; */
    margin: auto;
    display: flex;
    flex-direction: row;
@@ -63,7 +56,7 @@
 .titleMain {
   text-align: center;
   font-size: 2rem;
-  padding-top: 1rem;
+  padding: 1rem 0;
 }
 
 .headerMain {
@@ -122,8 +115,30 @@
    margin-top: 2rem;
 }
 
+.guessWordButton {
+  height: 10rem;
+  width: 90dvw;
+  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.successButton {
+  background: rgba(0, 255, 0, 0.8);
+}
+
+.passButton {
+  background: rgba(255, 0, 0, 0.8);
+}
+
 
 .inputSmall {
+  margin-bottom: 0;
+  vertical-align: middle;
   width: 4rem;
 }
 
@@ -176,4 +191,11 @@
   font-weight: bold;
   margin-right: 0.5rem;
   align-self: center;
+}
+
+.alignLeft {
+  position: relative;
+  left: 0;
+  display: flex;
+  margin-left: 0;
 }
