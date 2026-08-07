@@ -3,8 +3,10 @@ import { useNavigate } from "react-router";
 
 import { createFishbowlGame } from "../api/fetch";
 
+import "../App.css";
+
 type FishbowlSettings = {
-  teams: { name: string; players: string[]; }[];
+  teams: { name: string; players: string[] }[];
   wordsPerPlayer: number;
 
   rounds: string[];
@@ -37,131 +39,167 @@ export function CreateGame({ user, setGame }: { user: any; setGame: any }) {
   };
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        console.log("Creating game with settings: ", fishbowlSettings);
-        if (!user) return alert("Please go back and enter your name before creating a game.");
-        createGame();
-      }}
-    >
-      <h1>Game Setup</h1>
-      <h3>Rounds:</h3>
-      <div style={{ margin: "auto", width: "max-content" }}>
-        {fishbowlSettings.rounds.map((round, index) => (
-          <p style={{ width: "max-content" }} key={index}>
-            <b>Round {index + 1}:</b>{" "}
-            <input
-              onChange={(e) => {
-                const newRounds = [...fishbowlSettings.rounds];
-                newRounds[index] = e.target.value;
-                setFishbowlSettings({ ...fishbowlSettings, rounds: newRounds });
-              }}
-              value={round}
-            />
-            <button
-              onClick={(e) => {
+    <div className="containerMain">
+      <form
+        className="verticalWrapperMain"
+        onSubmit={(e) => {
+          e.preventDefault();
+          console.log("Creating game with settings: ", fishbowlSettings);
+          if (!user)
+            return alert(
+              "Please go back and enter your name before creating a game.",
+            );
+          createGame();
+        }}
+      >
+        {/* <div style={{ margin: "auto", width: "max-content" }}> */}
+        <div className="verticalWrapperMain">
+          <h1 className="titleMain">Game Setup</h1>
+          <h3 className="headerMain">Rounds:</h3>
+          {fishbowlSettings.rounds.map((round, index) => (
+            <div key={index}>
+              <p key={index}>
+                <b>Round {index + 1}:</b>{" "}
+              </p>
+              <div className="horizontalWrapperMain">
+              <input
+                className="inputMain"
+                onChange={(e) => {
+                  const newRounds = [...fishbowlSettings.rounds];
+                  newRounds[index] = e.target.value;
+                  setFishbowlSettings({
+                    ...fishbowlSettings,
+                    rounds: newRounds,
+                  });
+                }}
+                value={round}
+              />
+              <button
+                className="buttonSquare delete"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const newRounds = fishbowlSettings.rounds.filter(
+                    (_, i) => i !== index,
+                  );
+                  setFishbowlSettings({
+                    ...fishbowlSettings,
+                    rounds: newRounds,
+                  });
+                }}
+              >
+                X
+              </button>
+              </div>
+            </div>
+          ))}
+          <button
+            className="buttonMain"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
                 e.preventDefault();
-                const newRounds = fishbowlSettings.rounds.filter(
-                  (_, i) => i !== index,
-                );
-                setFishbowlSettings({ ...fishbowlSettings, rounds: newRounds });
-              }}
-            >
-              X
-            </button>
-          </p>
-        ))}
-        <button
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
+                setFishbowlSettings({
+                  ...fishbowlSettings,
+                  rounds: [...fishbowlSettings.rounds, ""],
+                });
+              }
+            }}
+            onClick={(e) => {
               e.preventDefault();
               setFishbowlSettings({
                 ...fishbowlSettings,
                 rounds: [...fishbowlSettings.rounds, ""],
               });
-            }
-          }}
-          onClick={(e) => {
-            e.preventDefault();
-            setFishbowlSettings({
-              ...fishbowlSettings,
-              rounds: [...fishbowlSettings.rounds, ""],
-            });
-          }}
-        >
-          Add Round
+            }}
+          >
+            Add Round
+          </button>
+        </div>
+        <div className="horizontalWrapperMain" style={{gap: '2rem'}}>
+          <div className="verticalWrapperMain">
+            <h3 className="headerMain">Teams</h3>
+            <input
+              className="inputMain inputSmall"
+              type="number"
+              value={fishbowlSettings.teams.length}
+              onChange={(e) => {
+                const newTeamCount = Number(e.target.value);
+                const newTeams = [...fishbowlSettings.teams];
+                if (newTeamCount > newTeams.length) {
+                  for (let i = newTeams.length; i < newTeamCount; i++) {
+                    newTeams.push({ name: `Team ${i + 1}`, players: [] });
+                  }
+                } else {
+                  newTeams.splice(newTeamCount);
+                }
+                setFishbowlSettings({ ...fishbowlSettings, teams: newTeams });
+              }}
+            />
+          </div>
+          <div className="verticalWrapperMain">
+            <h3 className="headerMain">Players</h3>
+            <input
+              className="inputMain inputSmall"
+              id="wordsPerPlayer"
+              type="number"
+              value={fishbowlSettings.wordsPerPlayer}
+              onChange={(e) =>
+                setFishbowlSettings({
+                  ...fishbowlSettings,
+                  wordsPerPlayer: Number(e.target.value),
+                })
+              }
+            />
+          </div>
+        </div>
+        <div className="verticalWrapperMain">
+          <h3 className="headerMain">Time Per Round:</h3>
+          <div className="horizontalWrapperMain" style={{gap: '2rem'}}>
+            <div className="verticalWrapperMain">
+              <label className="inputLabelMain" htmlFor="minutesPerRound">
+                Minutes
+              </label>
+              <input
+                className="inputMain inputSmall"
+                id="minutesPerRound"
+                type="number"
+                value={fishbowlSettings.timePerRound.minutes}
+                onChange={(e) =>
+                  setFishbowlSettings({
+                    ...fishbowlSettings,
+                    timePerRound: {
+                      ...fishbowlSettings.timePerRound,
+                      minutes: Number(e.target.value),
+                    },
+                  })
+                }
+              />
+            </div>
+            <div className="verticalWrapperMain">
+              <label className="inputLabelMain" htmlFor="secondsPerRound">
+                Seconds
+              </label>
+              <input
+                className="inputMain inputSmall"
+                id="secondsPerRound"
+                type="number"
+                value={fishbowlSettings.timePerRound.seconds}
+                onChange={(e) =>
+                  setFishbowlSettings({
+                    ...fishbowlSettings,
+                    timePerRound: {
+                      ...fishbowlSettings.timePerRound,
+                      seconds: Number(e.target.value),
+                    },
+                  })
+                }
+              />
+            </div>
+          </div>
+        </div>
+        <button className="buttonMain buttonSubmit" type="submit">
+          Create Game
         </button>
-      </div>
-      <h3>Number of Teams:</h3>
-      <input
-        type="number"
-        value={fishbowlSettings.teams.length}
-        onChange={(e) => {
-          const newTeamCount = Number(e.target.value);
-          const newTeams = [...fishbowlSettings.teams];
-          if (newTeamCount > newTeams.length) {
-            for (let i = newTeams.length; i < newTeamCount; i++) {
-              newTeams.push({ name: `Team ${i + 1}`, players: [] });
-            }
-          } else {
-            newTeams.splice(newTeamCount);
-          }
-          setFishbowlSettings({ ...fishbowlSettings, teams: newTeams });
-        }}
-      />
-      <h3>Words Per Player</h3>
-      <input
-        id="wordsPerPlayer"
-        type="number"
-        value={fishbowlSettings.wordsPerPlayer}
-        onChange={(e) =>
-          setFishbowlSettings({
-            ...fishbowlSettings,
-            wordsPerPlayer: Number(e.target.value),
-          })
-        }
-      />
-      <h3>Time Per Round:</h3>
-
-      <label htmlFor="minutesPerRound">
-        Minutes:
-        <input
-          id="minutesPerRound"
-          type="number"
-          value={fishbowlSettings.timePerRound.minutes}
-          onChange={(e) =>
-            setFishbowlSettings({
-              ...fishbowlSettings,
-              timePerRound: {
-                ...fishbowlSettings.timePerRound,
-                minutes: Number(e.target.value),
-              },
-            })
-          }
-        />
-      </label>
-      <br></br>
-      <label htmlFor="secondsPerRound">
-        Seconds:
-        <input
-          id="secondsPerRound"
-          type="number"
-          value={fishbowlSettings.timePerRound.seconds}
-          onChange={(e) =>
-            setFishbowlSettings({
-              ...fishbowlSettings,
-              timePerRound: {
-                ...fishbowlSettings.timePerRound,
-                seconds: Number(e.target.value),
-              },
-            })
-          }
-        />
-      </label>
-      <br></br>
-      <br></br>
-      <button type="submit">Create Game</button>
-    </form>
+      </form>
+    </div>
   );
 }

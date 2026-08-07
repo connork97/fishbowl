@@ -3,12 +3,10 @@
   line-height: 1.5;
   font-weight: 400;
   color: #111827;
-  background: #ffffff;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: rgba(50, 50, 50, 1);
   color: white;
 }
 
@@ -20,9 +18,17 @@ html,
 body,
 #root {
   min-height: 100%;
+  
 }
 
 body {
+  background-image: url('./assets/FishbowlBackground.png');
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+
   margin: 0;
   min-width: 320px;
 }
@@ -38,6 +44,7 @@ a {
   color: inherit;
   text-decoration: inherit;
 }
+
 
 .flexRow {
   display: flex;

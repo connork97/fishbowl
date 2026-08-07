@@ -8,6 +8,8 @@ import Fishbowl from "./components/Fishbowl";
 import { socket } from "./socket";
 import { normalizeGameData } from "./utils/normalizeGameData";
 
+import "./App.css";
+
 function App() {
   const [game, setGame] = useState<Game | null>(null);
   const [user, setUser] = useState("");
@@ -15,11 +17,11 @@ function App() {
   // * Connect to Socket Effect * //
   useEffect(() => {
     const onConnect = () => {
-      console.log('Socket connected');
+      console.log("Socket connected");
     };
 
     const onDisconnect = () => {
-      console.log('Socket disconnected');
+      console.log("Socket disconnected");
     };
 
     const onGameData = (rawGame: any) => {
@@ -40,8 +42,8 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <div style={{ margin: "auto", textAlign: "center" }}>
+    <div className="app">
+      <BrowserRouter>
         <Routes>
           <Route
             path="/"
@@ -60,8 +62,8 @@ function App() {
             element={<Fishbowl user={user} game={game} setGame={setGame} />}
           />
         </Routes>
-      </div>
-    </BrowserRouter>
+      </BrowserRouter>
+    </div>
   );
 }
 

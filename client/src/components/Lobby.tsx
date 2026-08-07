@@ -19,7 +19,7 @@ export default function Lobby({
   user: string;
 }) {
   const timerDelay = 1;
-  
+
   const navigate = useNavigate();
   const location = useLocation();
   const gameCode = location.pathname.split("/").pop() ?? "";
@@ -28,7 +28,6 @@ export default function Lobby({
     if (!gameCode) return;
     socket.emit("join_game", gameCode);
   }, [gameCode]);
-
 
   const [redirectTimer, setRedirectTimer] = useState<number>(timerDelay);
 
@@ -92,74 +91,72 @@ export default function Lobby({
     }
   };
 
+  if (!game && !user) {
+    return <h1>Loading game and user...</h1>;
+  } else if (!game) {
+    return <h1>Finding game...</h1>;
+  } else if (!user) {
+    return <h1>Finding user...</h1>;
+  }
+
   return (
-    <>
-      {game && user ? (
+    <div
+      className="containerMain"
+      style={{
+        pointerEvents:
+          game.status === "Starting" || game.status === "Active"
+            ? "none"
+            : "auto",
+      }}
+    >
+      {(game.status === "Starting" || game.status === "Active") && (
         <div
           style={{
-            pointerEvents:
-              game.status === "Starting" || game.status === "Active"
-                ? "none"
-                : "auto",
+            height: "100%",
+            width: "100%",
+            position: "absolute",
+            backgroundColor: "rgba(0, 0, 0, 0.9)",
+            pointerEvents: "none",
           }}
         >
-          {(game.status === "Starting" || game.status === "Active") && (
-            <div
-              style={{
-                height: "100dvh",
-                width: "100dvw",
-                position: "absolute",
-                backgroundColor: "rgba(0, 0, 0, 0.9)",
-                pointerEvents: "none",
-              }}
-            >
-              <div
-                style={{
-                  margin: "auto",
-                  position: "absolute",
-                  top: "30%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                <h1>
-                  {game.status === "Starting" && "Game starting soon..."}
-                  {game.status === "Active" &&
-                    `Redirecting in ${redirectTimer}...`}
-                </h1>
-              </div>
-            </div>
-          )}
-          <h1>{game.hostName}'s Fishbowl Lobby</h1>
-          <h1>
-            Game Code:{" "}
-            <b>
-              <u>
-                <em>{game.code}</em>
-              </u>
-            </b>
-          </h1>
-          {user ? (
-            <h2>Welcome, {user}!</h2>
-          ) : (
-            <h2>Uh oh, we don't know your name.</h2>
-          )}
-          <h2>Game Status: {game.status}</h2>
-          {user === game.hostName && (
-            <button onClick={() => startGame()}>Start Game</button>
-          )}
-          <h1>Teams:</h1>
-
           <div
-            className="flexRow evenly"
             style={{
               margin: "auto",
-              width: "50%",
-              flexWrap: "wrap",
+              position: "absolute",
+              top: "30%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
             }}
           >
-            <div>
-              <h3>Free Agents:</h3>
+            <h1>
+              {game.status === "Starting" && "Game starting soon..."}
+              {game.status === "Active" && `Redirecting in ${redirectTimer}...`}
+            </h1>
+          </div>
+        </div>
+      )}
+      <div className="verticalWrapperMain">
+        <h1 className="titleMain">{game.hostName}'s Fishbowl Lobby</h1>
+        <h1 className="titleMain">Game Code: {game.code}</h1>
+        {/* {user ? (
+          <h2 className="headerMain">Welcome, {user}!</h2>
+        ) : (
+          <h2 className="headerMain">Uh oh, we don't know your name.</h2>
+        )} */}
+        <h2 className="headerMain">Game Status: {game.status}</h2>
+        {user === game.hostName && (
+          <button className="buttonMain" onClick={() => startGame()}>
+            Start Game
+          </button>
+        )}
+        <div className="verticalWrapperMain">
+          <h2 className="titleMain">Teams:</h2>
+          <div
+            className="horizontalWrapperMain"
+            style={{ height: "max-content", gap: "1rem", flexWrap: "wrap" }}
+          >
+            <div className="verticalWrapperMain">
+              <h3 className="headerMain">Free Agents</h3>
               {game.players.map((player, index) => {
                 const isOnTeam = game.teams.some((team) =>
                   team.players.includes(player),
@@ -170,77 +167,70 @@ export default function Lobby({
               })}
             </div>
             {game.teams.map((team, index) => (
-              <div key={index}>
-                <h3>{team.name}</h3>
+              <div
+                key={index}
+                className="verticalWrapperMain"
+                style={{ height: "100%" }}
+              >
+                <h3 className="headerMain">{team.name}</h3>
                 {team.players.map((player, playerIndex) => (
                   <p key={playerIndex}>{player}</p>
                 ))}
-                <button onClick={() => joinTeam(team.name)}>Join Team</button>
+                <button
+                  className="buttonMain buttonSmall"
+                  onClick={() => joinTeam(team.name)}
+                >
+                  Join Team
+                </button>
               </div>
             ))}
           </div>
-          <div
-            className="flexRow evenly"
-            style={{ margin: "auto", width: "50%" }}
-          >
-            <form
-              className="flexColumn"
-              onSubmit={(e) => {
-                e.preventDefault();
-                submitNewWord();
-              }}
-            >
-              <h1>
-                {game.words.length} Words out of{" "}
-                {game.settings.wordsPerPlayer * game.players.length}
-              </h1>
+        </div>
+      </div>
+      <div className="verticalWrapperMain">
+        <form
+          className="verticalWrapperMain"
+          onSubmit={(e) => {
+            e.preventDefault();
+            submitNewWord();
+          }}
+        >
+          <h1 className="titleMain">
+            {game.words.length} Words out of{" "}
+            {game.settings.wordsPerPlayer * game.players.length}
+          </h1>
 
-              <input
-                type="text"
-                value={newWordInput}
-                onChange={(e) => setNewWordInput(e.target.value)}
-              />
-              <button type="submit">Add Word</button>
-            </form>
-          </div>
-          <div
-            className="flexRow evenly"
-            style={{ margin: "auto", width: "50%" }}
-          >
-            <div className="flexColumn">
-              <h3>Rounds:</h3>
-              <div>
-                {game.settings.rounds.map((round, index) => (
-                  <p key={index}>
-                    <b>Round {index + 1}:</b> {round}
-                  </p>
-                ))}
-              </div>
-            </div>
-            <div className="flexColumn">
-              <h3>Time per Round:</h3>
-              <p>
-                {game.settings.timePerRound.minutes} minutes and{" "}
-                {game.settings.timePerRound.seconds} seconds
-              </p>
-            </div>
-            <div className="flexColumn">
-              <h3>Words per Player:</h3>
-              <p>{game.settings.wordsPerPlayer}</p>
-            </div>
-          </div>
+          <input
+            type="text"
+            value={newWordInput}
+            onChange={(e) => setNewWordInput(e.target.value)}
+          />
+          <button type="submit" className="buttonMain">
+            Add Word
+          </button>
+        </form>
+      </div>
+      <div className="horizontalWrapperMain">
+        <div className="verticalWrapperMain">
+          <h3 className="headerMain">Rounds:</h3>
+          {game.settings.rounds.map((round, index) => (
+            <p key={index}>
+              <b>Round {index + 1}:</b> <p>{round}</p>
+            </p>
+          ))}
         </div>
-      ) : (
-        <div>
-          {!user ? (
-            <h1 style={{ marginTop: "30vh" }}>
-              Please go back and enter your name.
-            </h1>
-          ) : (
-            <h1>Loading...</h1>
-          )}
+        <div className="verticalWrapperMain">
+          <h3 className="headerMain">Time per Round:</h3>
+          <p>
+            {game.settings.timePerRound.minutes} minutes and{" "}
+            {game.settings.timePerRound.seconds} seconds
+          </p>
         </div>
-      )}
-    </>
+        <div className="verticalWrapperMain">
+          <h3 className="headerMain">Words per Player:</h3>
+          <p>{game.settings.wordsPerPlayer}</p>
+        </div>
+      </div>
+    </div>
   );
 }

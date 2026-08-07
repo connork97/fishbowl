@@ -3,6 +3,8 @@ import { useNavigate } from "react-router";
 import { joinGameByCode } from "../api/fetch";
 import { normalizeGameData } from "../utils/normalizeGameData";
 
+import "../App.css";
+
 export default function Home({ user, setUser, setGame }: any) {
   const navigate = useNavigate();
 
@@ -24,46 +26,75 @@ export default function Home({ user, setUser, setGame }: any) {
   };
 
   return (
-    <div>
-      <h1>Welcome to Fishbowl</h1>
+    <div className="containerMain">
       {!user ? (
-        <div>
-          <h2>
-            First, please enter your name<br></br>(as you'd like it to appear in
-            game):
-          </h2>
-          <form onSubmit={handleNewUserSubmit}>
+        <>
+          <form onSubmit={handleNewUserSubmit} className="verticalWrapperMain">
+            <h1 className="titleMain">Welcome to Fishbowl</h1>
+            <label htmlFor="newUserInput" className="inputLabelMain">
+              First, please enter your name
+            </label>
             <input
+              id="newUserInput"
+              className="inputMain"
               type="text"
               value={newUserInputVal}
               onChange={(e) => setNewUserInputVal(e.target.value)}
             />
-            <button>Submit</button>
+            <button type="submit" className="buttonMain">
+              Submit
+            </button>
           </form>
-        </div>
+        </>
       ) : (
-        <div>
-          <h1>Welcome, {user}!</h1>
-          <button onClick={() => navigate('/create-game')}>Create a Game</button>
-          <h2>or enter game code below</h2>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              console.log("Joining game with code: ", joinGameInput);
-              joinGame(joinGameInput);
-            }}
-          >
-            <input
-              type="text"
-              placeholder="Ex) 2XBZ"
-              value={joinGameInput}
-              onChange={(e) => setJoinGameInput(e.target.value)}
-            />
-            <br></br>
-            <br></br>
-            <button type="submit">Join Game</button>
-          </form>
-        </div>
+        <>
+          <div className="verticalWrapperMain">
+            <h1 className="titleMain">Welcome, {user}!</h1>
+            <form
+              className="verticalWrapperMain"
+              onSubmit={(e) => e.preventDefault()}
+            >
+              <label htmlFor="joinGameButton" className="inputLabelMain">
+                Create a New Game:
+              </label>
+              <button
+                className="buttonMain"
+                onClick={() => navigate("/create-game")}
+              >
+                Create a Game
+              </button>
+            </form>
+            {/* <h2>Or Join One By Code:</h2> */}
+            <form
+              className="verticalWrapperMain"
+              // className="flexColumn joinGameForm"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!joinGameInput) {
+                  alert("Please enter a game code to join a game.");
+                  return;
+                }
+                console.log("Joining game with code: ", joinGameInput);
+                joinGame(joinGameInput);
+              }}
+            >
+              <label htmlFor="joinGameInput" className="inputLabelMain">
+                Join a Game by Code:
+              </label>
+              <input
+                id="joinGameInput"
+                className="inputMain"
+                type="text"
+                placeholder="Ex) 2XBZ"
+                value={joinGameInput}
+                onChange={(e) => setJoinGameInput(e.target.value)}
+              />
+              <button type="submit" className="buttonMain">
+                Join Game
+              </button>
+            </form>
+          </div>
+        </>
       )}
     </div>
   );
