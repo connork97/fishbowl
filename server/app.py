@@ -1,5 +1,3 @@
-import socket
-
 from flask import jsonify, request
 from flask_socketio import emit, join_room
 from config import app, db, socketio
@@ -169,23 +167,6 @@ def add_player_to_team(game_code):
     pretty_print_json(game.to_dict(), GREEN)
     return jsonify(game.to_dict())
 
-
-# REGARDLESS OF OUTCOME:
-# Update Team Score
-
-# IF ALL WORDS ARE GUESSED:
-# Carry over extra time to next round
-# Maintain active team
-# Maintatin active player
-# Reset Available Words
-# Randomize available words
-
-# IF WORDS REMAIN:
-# Move to Next Team
-# Maintain available words
-# Randomize available words
-
-
 @app.route("/games/<string:game_code>/update", methods=["PATCH"])
 def update_game(game_code):
     form_data = request.get_json() or {}
@@ -205,120 +186,6 @@ def update_game(game_code):
     
     return jsonify(game_to_update.to_dict()), 200
     
-    # game_to_update = Game.query.filter_by(code=game_code).first() #make this the last game to match the code
-    # pretty_print_json(normalized_data, GREEN)
-    # temp = {
-        # 'status': 'ok'
-    # }
-    # return jsonify(temp), 200
-    # return jsonify({"ok": True}), 200
-    # normalizer = (
-    #     normalize_form_data.normalize_form_data
-    #     if hasattr(normalize_form_data, "normalize_form_data")
-    #     else normalize_form_data
-    # )
-    # teams, settings = normalizer(form_data)
-    # print("TEAMS:", teams, flush=True)
-    # print("SETTINGS:", settings, flush=True)
-    # return jsonify({"ok": True}), 200
-
-
-# form_data = request.get_json()
-# pretty_print_json(form_data)
-
-# active_team_index = form_data.get("activeTeamIndex")
-# active_player_index = form_data.get("activePlayerIndex")
-# successfully_guessed_words = form_data.get("successfullyGuessedWords", [])
-# remaining_time = form_data.get("remainingTime", 0)
-
-# game = Game.query.filter_by(code=game_code).first()
-
-# if not game:
-#     return jsonify({"error": "Game not found"}), 404
-
-# updated_teams = [...game.teams]
-# updated_teams[active_team_index] = {
-#     ...updated_teams[active_team_index],
-#     score: updated_teams[active_team_index].score + successfully_guessed_words.length,
-#     playerIndex: active_player_index,
-# }
-
-# updated_settings = {
-#     ...game.settings,
-#     teamIndex: active_team_index,
-#     remaining_time: remaining_time,
-# }
-
-# available_words = game.available_words.filter(word => !successfully_guessed_words.includes(word))
-
-# game.teams = updated_teams
-# game.settings = updated_settings
-# game.available_words = available_words
-# db.session.commit()
-# publish_game_data(game_code)
-
-# pretty_print_json(game.to_dict(), GREEN)
-# return jsonify(game.to_dict())
-
-# @app.route('/games/<string:game_code>/update-team', methods=['PATCH'])
-# def update_team(game_code):
-#     form_data = request.get_json()
-#     pretty_print_json(form_data)
-
-#     team_name = form_data.get("teamName")
-#     updated_players = form_data.get("players")
-#     score = form_data.get("score")
-
-#     game = Game.query.filter_by(code=game_code).first()
-
-#     if not game:
-#         return jsonify({"error": "Game not found"}), 404
-
-#     team_exists = any(team["name"] == team_name for team in game.teams)
-
-#     if not team_exists:
-#         return jsonify({"error": "Team not found"}), 404
-
-#     updated_teams = []
-
-#     for team in game.teams:
-#         updated_team = dict(team)
-
-#         if team["name"] == team_name:
-#             updated_team["players"] = updated_players
-#             updated_team["score"] = score
-
-#         updated_teams.append(updated_team)
-
-#     game.teams = updated_teams
-#     db.session.add(game)
-#     db.session.commit()
-#     publish_game_data(game_code)
-
-#     pretty_print_json(game.to_dict(), GREEN)
-#     return jsonify(game.to_dict())
-
-# @app.route('/games/<string:game_code>/update', methods=['PATCH'])
-# def update_game():
-#     form_data = request.get_json()
-#     pretty_print_json(form_data)
-
-#     game_code = form_data.get("gameCode")
-#     updated_settings = form_data.get("settings")
-
-#     game = Game.query.filter_by(code=game_code).first()
-
-#     if not game:
-#         return jsonify({"error": "Game not found"}), 404
-
-#     game.settings = updated_settings
-#     db.session.commit()
-#     publish_game_data(game_code)
-
-#     pretty_print_json(game.to_dict(), GREEN)
-#     return jsonify(game.to_dict())
-
-
 @app.route("/games/<string:game_code>/add-word", methods=["PATCH"])
 def add_word_to_game(game_code):
     form_data = request.get_json()
@@ -388,20 +255,6 @@ def handle_join_game(game_code):
     pretty_print_message(f"Client joined game {game_code}", color=GREEN)
     join_room(game_code)
     publish_game_data(game_code)
-    # game = Game.query.filter_by(code=game_code).first()
-    # if game:
-    #     pretty_print_json(game.to_dict(), GREEN)
-    #     emit('game_data', game.to_dict(), to=game_code)
-
-
-# @socketio.on('get_first_game')
-# def handle_get_first_game():
-#     pretty_print_message('Client requested first game', color=GREEN)
-#     first_game = Game.query.order_by(Game.id.desc()).first() # fetch the last game instead
-#     if first_game:
-#         pretty_print_json(first_game.to_dict(), GREEN)
-#         # send('first_game', first_game.to_dict())
-#         emit('get_first_game', first_game.to_dict())
 
 if __name__ == "__main__":
     # app.run(debug=True, port=5555)
