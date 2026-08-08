@@ -6,11 +6,21 @@ from sqlalchemy import MetaData
 
 from flask_socketio import SocketIO
 
+import os
+
 app = Flask(__name__)
 
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"  # Local DB file
+# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"  # Local DB file
+database_url = os.getenv("DATABASE_URL", "sqlite:///app.db")
+
+# Some providers expose postgres:// URLs; SQLAlchemy expects postgresql://
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # Disable extra tracking
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-only-secret")
 app.config["SECRET_KEY"] = "my-secret-key"
 app.json.compact = False  # Pretty Print JSON in dev
 

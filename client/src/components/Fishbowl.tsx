@@ -15,7 +15,6 @@ export default function Fishbowl({
   setGame: any;
   user: string;
 }) {
-
   const navigate = useNavigate();
 
   const [successfullyGuessedWords, setSuccessfullyGuessedWords] = useState<
@@ -85,9 +84,15 @@ export default function Fishbowl({
     }
   };
 
-  const handleRoundEnd = async () => {
+  const prePauseCleanup = () => {
     setRoundTimerIsActive(false);
     setRoundHasStarted(false);
+    setActiveWordIndex(0);
+  }
+
+  const handleRoundEnd = async () => {
+    prePauseCleanup();
+
     if (!game) return console.error("Game data is null or undefined");
 
     const remainingTime = roundTimer;
@@ -122,7 +127,6 @@ export default function Fishbowl({
   };
 
   useEffect(() => {
-    console.log("available words: ", availableWords);
     if (!roundHasStarted) return;
     if (availableWords.length === 0 && roundTimer > 0) {
       handleRoundEnd();
@@ -132,20 +136,17 @@ export default function Fishbowl({
     }
   }, [availableWords, roundTimer]);
 
-  // useEffect(() => {
-  // }, [roundTimer]);
-
   const changeTurn = async (updatedGame: Game) => {
     if (!updatedGame?.code) return;
 
+    prePauseCleanup();
+
     const updatedGameData = await updateFishbowlGame(updatedGame);
+
     setGame(updatedGameData);
 
-    setRoundHasStarted(false);
-    setRoundTimerIsActive(false);
     setRoundTimer(roundTimerInSeconds);
     setSuccessfullyGuessedWords([]);
-    setActiveWordIndex(0);
   };
 
   const handleOutOfTime = async () => {
@@ -192,12 +193,6 @@ export default function Fishbowl({
     changeTurn(updatedGame);
   };
 
-  // useEffect(() => {
-  //   if (roundHasStarted && roundTimer === 0) {
-  //     handleOutOfTime();
-  //   }
-  // }, [roundTimer]);
-
   const handlePassWord = () => {
     let nextWordIndex = activeWordIndex + 1;
     if (nextWordIndex >= availableWords.length) {
@@ -216,15 +211,17 @@ export default function Fishbowl({
     return (
       <div className="containerMain">
         <div className="verticalWrapperMain">
-        <h1 className="titleMain">Game Over</h1>
-        <h2 className="titleMain">Final Scores:</h2>
-        {game.teams.map((team, index) => (
-          <div key={index}>
-            <h3 className="titleMain">{team.name}</h3>
-            <p className="headerMain">Score: {team.score}</p>
-          </div>
-        ))}
-        <button className="buttonMain" onClick={() => navigate("/")}>Back to Home</button>
+          <h1 className="titleMain">Game Over</h1>
+          <h2 className="titleMain">Final Scores:</h2>
+          {game.teams.map((team, index) => (
+            <div key={index}>
+              <h3 className="titleMain">{team.name}</h3>
+              <p className="headerMain">Score: {team.score}</p>
+            </div>
+          ))}
+          <button className="buttonMain" onClick={() => navigate("/")}>
+            Back to Home
+          </button>
         </div>
       </div>
     );
@@ -255,25 +252,48 @@ export default function Fishbowl({
             </h2>
           </>
         ) : (
-        <>
-        <h1>You're up {user}</h1>
-
-        </>)}
+          <>
+            <h1>You're up {user}</h1>
+          </>
+        )}
         {user === currentPlayer && (
           <div>
             {!roundHasStarted ? (
-              <button className="buttonMain" onClick={handleRoundStart}>Start Round</button>
+              <button
+                className="buttonMain"
+                style={{ marginTop: "50%" }}
+                onClick={handleRoundStart}
+              >
+                Start Round
+              </button>
             ) : (
               <div>
-                <h3 className="headerMain">Time Remaining: {roundTimer} seconds</h3>
-                <h3 className="headerMain">Words Remaining: {availableWords.length}</h3>
+                <h3 className="headerMain">
+                  Time Remaining: {roundTimer} seconds
+                </h3>
+                <h3 className="headerMain">
+                  Words Remaining: {availableWords.length}
+                </h3>
                 {availableWords.length > 0 && (
-                  <div className="verticalWrapperMain" style={{gap: '5rem'}}>
+                  <div className="verticalWrapperMain" style={{ gap: "5rem" }}>
                     <h3 className="titleMain">Current Word: {currentWord}</h3>
-                    <div className="verticalWrapperMain" style={{gap: '5rem'}}>
-                      <button className="guessWordButton successButton" onClick={handleSuccessfulGuess}>Got it</button>
+                    <div
+                      className="verticalWrapperMain"
+                      style={{ gap: "5rem" }}
+                    >
+                      <button
+                        className="guessWordButton successButton"
+                        onClick={handleSuccessfulGuess}
+                      >
+                        Got it
+                      </button>
                       {availableWords.length > 1 && (
-                        <button className="guessWordButton passButton" onClick={handlePassWord}>Pass</button>
+                        <button
+                          className="guessWordButton passButton"
+                          onClick={handlePassWord}
+                        >
+                          Pass
+                        </button>
                       )}
                     </div>
                   </div>
