@@ -12,16 +12,17 @@ app = Flask(__name__)
 
 
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"  # Local DB file
-database_url = os.getenv("DATABASE_URL", "sqlite:///app.db")
+# database_url = os.getenv("DATABASE_URL", "sqlite:///app.db")
+database_url = os.getenv("DATABASE_URL")
 
 # Some providers expose postgres:// URLs; SQLAlchemy expects postgresql://
-if database_url.startswith("postgres://"):
-    database_url = database_url.replace("postgres://", "postgresql://", 1)
+# if database_url.startswith("postgres://"):
+    # database_url = database_url.replace("postgres://", "postgresql://", 1)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # Disable extra tracking
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-only-secret")
-app.config["SECRET_KEY"] = "my-secret-key"
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "my-secret-key")
+# app.config["SECRET_KEY"] = "my-secret-key"
 app.json.compact = False  # Pretty Print JSON in dev
 
 socketio = SocketIO(app, cors_allowed_origins="*")  # Allow all origins for SocketIO
@@ -43,7 +44,7 @@ migrate = Migrate(app, db)
 CORS(
     app,
     supports_credentials=True,
-    origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    origins=["*", "http://localhost:5173", "http://127.0.0.1:5173"],
 )
 
 # ! Note to self, these are the terminal commands to create initial and followup migrations:
