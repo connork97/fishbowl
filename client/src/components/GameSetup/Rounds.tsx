@@ -64,6 +64,7 @@ export default function Rounds({
             rounds: [...fishbowlSettings.rounds, ""],
           });
         }}
+        style={{ marginTop: "1rem" }}
       >
         Add Round
       </button>

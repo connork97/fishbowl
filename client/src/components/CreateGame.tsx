@@ -21,6 +21,9 @@ type FishbowlSettings = {
 
 export function CreateGame({ user, setGame }: { user: any; setGame: any }) {
   const navigate = useNavigate();
+
+  const [setupIndex, setSetupIndex] = useState<number>(0);
+
   const [fishbowlSettings, setFishbowlSettings] = useState<FishbowlSettings>({
     teams: [
       { name: `Team 1`, players: [user] },
@@ -57,21 +60,54 @@ export function CreateGame({ user, setGame }: { user: any; setGame: any }) {
       >
         {/* <div style={{ margin: "auto", width: "max-content" }}> */}
         <h1 className="titleMain">Game Setup</h1>
-        <Rounds
-          fishbowlSettings={fishbowlSettings}
-          setFishbowlSettings={setFishbowlSettings}
-        />
-        <PlayersAndTeams
-          fishbowlSettings={fishbowlSettings}
-          setFishbowlSettings={setFishbowlSettings}
-        />
-        <Time
-          fishbowlSettings={fishbowlSettings}
-          setFishbowlSettings={setFishbowlSettings}
-        />
-        <button className="buttonMain buttonSubmit" type="submit">
-          Create Game
-        </button>
+        {setupIndex === 0 && (
+          <Rounds
+            fishbowlSettings={fishbowlSettings}
+            setFishbowlSettings={setFishbowlSettings}
+          />
+        )}
+        {setupIndex === 1 && (
+          <PlayersAndTeams
+            fishbowlSettings={fishbowlSettings}
+            setFishbowlSettings={setFishbowlSettings}
+          />
+        )}
+        {setupIndex === 2 && (
+          <Time
+            fishbowlSettings={fishbowlSettings}
+            setFishbowlSettings={setFishbowlSettings}
+          />
+        )}
+
+        {setupIndex < 2 && (
+          <button
+            className="buttonMain"
+            style={{ marginTop: "2rem" }}
+            type="button"
+            onClick={() => setSetupIndex(setupIndex + 1)}
+          >
+            Looks Good
+          </button>
+        )}
+        {setupIndex > 0 && (
+          <button
+            className="buttonMain"
+            style={{ marginTop: "2rem" }}
+            type="button"
+            onClick={() => setSetupIndex(setupIndex - 1)}
+            disabled={setupIndex === 0}
+          >
+            Go Back
+          </button>
+        )}
+
+        {setupIndex === 2 && (
+          <div className="verticalWrapperMain">
+            <button className="buttonMain buttonSubmit" type="submit">
+              Create Game
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

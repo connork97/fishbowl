@@ -3,10 +3,9 @@ import '../../App.css';
 export default function PlayersAndTeams({ fishbowlSettings, setFishbowlSettings }: { fishbowlSettings: any; setFishbowlSettings: any }) {
   return (
     <div className="verticalWrapperMain" style={{ gap: "2rem" }}>
-      <div className="horizontalWrapperMain" style={{ alignContent: "center" }}>
         <h3 className="headerMain">Teams</h3>
         <input
-          className="inputMain inputSmall"
+          className="inputMain"
           type="number"
           value={fishbowlSettings.teams.length}
           onChange={(e) => {
@@ -21,14 +20,13 @@ export default function PlayersAndTeams({ fishbowlSettings, setFishbowlSettings 
             }
             setFishbowlSettings({ ...fishbowlSettings, teams: newTeams });
           }}
+          style={{fontSize: '1.5rem', width: '50%'}}
         />
-      </div>
-      <div className="horizontalWrapperMain" style={{}}>
-        <h3 className="headerMain" style={{}}>
+        <h3 className="headerMain">
           Words Per Player
         </h3>
         <input
-          className="inputMain inputSmall"
+          className="inputMain"
           id="wordsPerPlayer"
           type="number"
           value={fishbowlSettings.wordsPerPlayer}
@@ -38,8 +36,8 @@ export default function PlayersAndTeams({ fishbowlSettings, setFishbowlSettings 
               wordsPerPlayer: Number(e.target.value),
             })
           }
+          style={{fontSize: '1.5rem', width: '50%'}}
         />
-      </div>
     </div>
   );
 }

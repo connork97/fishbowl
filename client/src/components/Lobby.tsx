@@ -91,6 +91,57 @@ export default function Lobby({
     }
   };
 
+  const freeAgents = game?.players.filter((player) => {
+    return !game.teams.some((team) => team.players.includes(player));
+  });
+
+  const renderFreeAgents =
+    freeAgents &&
+    (freeAgents?.length > 0 ? (
+      freeAgents?.map((player, index) => <p key={index}>{player}</p>)
+    ) : (
+      <p>No free agents</p>
+    ));
+
+  const renderTeams = game?.teams.map((team, index) => {
+    if (team.players.length === 0) {
+      return (
+        <div key={index} className="verticalWrapperMain">
+          <h3 className="headerMain">{team.name}</h3>
+          <p>No players</p>
+        </div>
+      );
+    } else {
+      return (
+        <div key={index} className="verticalWrapperMain">
+          <h3 className="headerMain">{team.name}</h3>
+          {team.players.map((player, playerIndex) => (
+            <p key={playerIndex}>{player}</p>
+          ))}
+        </div>
+      );
+    }
+  });
+
+  const minutesPerRound = game?.settings.timePerRound.minutes ?? 0;
+  const secondsPerRound = game?.settings.timePerRound.seconds ?? 0;
+
+  let timePerRoundString = "";
+
+  if (minutesPerRound > 0) {
+    timePerRoundString += `${minutesPerRound} minute${
+      minutesPerRound > 1 ? "s" : ""
+    }`;
+  }
+  if (secondsPerRound > 0) {
+    if (timePerRoundString) timePerRoundString += " and ";
+    timePerRoundString += `${secondsPerRound} second${
+      secondsPerRound > 1 ? "s" : ""
+    }`;
+  }
+
+  timePerRoundString += " per round.";
+
   if (!game && !user) {
     return <h1>Loading game and user...</h1>;
   } else if (!game) {
@@ -112,10 +163,12 @@ export default function Lobby({
       {(game.status === "Starting" || game.status === "Active") && (
         <div
           style={{
-            height: "100%",
-            width: "100%",
             position: "absolute",
-            backgroundColor: "rgba(0, 0, 0, 0.9)",
+            top: 0,
+            left: 0,
+            height: "100dvh",
+            width: "100dvw",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
             pointerEvents: "none",
           }}
         >
@@ -128,7 +181,10 @@ export default function Lobby({
               transform: "translate(-50%, -50%)",
             }}
           >
-            <h1>
+            <h1
+              className="titleMain"
+              style={{ width: "max-content", textAlign: "center" }}
+            >
               {game.status === "Starting" && "Game starting soon..."}
               {game.status === "Active" && `Redirecting in ${redirectTimer}...`}
             </h1>
@@ -137,80 +193,48 @@ export default function Lobby({
       )}
       {game.status !== "Starting" && game.status !== "Active" && (
         <>
-          <div className="verticalWrapperMain">
+          <div className="verticalWrapperMain" style={{ gap: 0 }}>
             <h1 className="titleMain">{game.hostName}'s Fishbowl Lobby</h1>
             <h1 className="titleMain">Game Code: {game.code}</h1>
-            {/* {user ? (
-          <h2 className="headerMain">Welcome, {user}!</h2>
-          ) : (
-          <h2 className="headerMain">Uh oh, we don't know your name.</h2>
-        )} */}
-            <h2 className="headerMain">Game Status: {game.status}</h2>
             {user === game.hostName && (
-              <button className="buttonMain" onClick={() => startGame()}>
+              <button
+                className="buttonMain"
+                onClick={() => startGame()}
+                style={{ scale: 1.25, margin: "1rem auto" }}
+              >
                 Start Game
               </button>
             )}
             <div className="verticalWrapperMain">
-              <h2 className="titleMain">Teams:</h2>
+              <div className="verticalWrapperMain">
+                <h3 className="headerMain">Free Agents:</h3>
+                <div className="horizontalWrapperMain">{renderFreeAgents}</div>
+              </div>
               <div
                 className="horizontalWrapperMain"
-                style={{ height: "max-content", gap: "1rem", flexWrap: "wrap" }}
+                style={{ height: "max-content", gap: "2rem", flexWrap: "wrap" }}
               >
-                <div className="verticalWrapperMain">
-                  <h3 className="headerMain">Free Agents</h3>
-                  {game.players.map((player, index) => {
-                    const isOnTeam = game.teams.some((team) =>
-                      team.players.includes(player),
-                    );
-                    if (!isOnTeam) {
-                      return <p key={index}>{player}</p>;
-                    }
-                  })}
-                </div>
+                {renderTeams}
+              </div>
+              <div
+                className="horizontalWrapperMain"
+                style={{
+                  height: "max-content",
+                  gap: "2rem",
+                  flexWrap: "wrap",
+                  marginBottom: "1rem",
+                }}
+              >
                 {game.teams.map((team, index) => (
-                  <div
+                  <button
                     key={index}
-                    className="verticalWrapperMain"
-                    style={{ height: "100%" }}
+                    className="buttonMain buttonSmall"
+                    onClick={() => joinTeam(team.name)}
                   >
-                    <h3 className="headerMain">{team.name}</h3>
-                    {team.players.map((player, playerIndex) => (
-                      <p key={playerIndex}>{player}</p>
-                    ))}
-                    <button
-                      className="buttonMain buttonSmall"
-                      onClick={() => joinTeam(team.name)}
-                    >
-                      Join Team
-                    </button>
-                  </div>
+                    Join Team
+                  </button>
                 ))}
               </div>
-            </div>
-          </div>
-          <div className="horizontalWrapperMain">
-            <div className="verticalWrapperMain">
-              <h3 className="headerMain alignLeft">Rounds:</h3>
-              {game.settings.rounds.map((round, index) => (
-                <div key={index} className="alignLeft">
-                  <p className="alignLeft">
-                    <b>Round {index + 1}:</b>{" "}
-                  </p>
-                  <p className="alignLeft" style={{ marginLeft: "0.5rem" }}>
-                    {round}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <div className="verticalWrapperMain">
-              <h3 className="headerMain alignLeft">Time per Round:</h3>
-              <p className="alignLeft">
-                {game.settings.timePerRound.minutes} minutes and{" "}
-                {game.settings.timePerRound.seconds} seconds
-              </p>
-              <h3 className="headerMain alignLeft">Words per Player:</h3>
-              <p className="alignLeft">{game.settings.wordsPerPlayer}</p>
             </div>
           </div>
           <div className="verticalWrapperMain">
@@ -221,20 +245,37 @@ export default function Lobby({
                 submitNewWord();
               }}
             >
-              <h1 className="titleMain">
+              <h1 className="headerMain">
                 {game.words.length} Words out of{" "}
                 {game.settings.wordsPerPlayer * game.players.length}
               </h1>
 
               <input
+                className="inputMain"
                 type="text"
                 value={newWordInput}
                 onChange={(e) => setNewWordInput(e.target.value)}
+                style={{ height: "2rem", width: "20rem" }}
               />
               <button type="submit" className="buttonMain">
                 Add Word
               </button>
             </form>
+            <div className="verticalWrapperMain" style={{ marginTop: "1rem" }}>
+              {game.settings.rounds.map((round, index) => (
+                <p key={index} style={{ fontSize: "1.5rem" }}>
+                  <b>Round {index + 1}:</b>{" "}
+                  <span style={{ marginLeft: "0.5rem" }}>{round}</span>
+                </p>
+              ))}
+            </div>
+            <div className="verticalWrapperMain" style={{ marginTop: "1rem" }}>
+              <h3 className="headerMain">Additional Settings:</h3>
+              <h3 className="headerMain">{timePerRoundString}</h3>
+              <h3 className="headerMain">
+                {game.settings.wordsPerPlayer} Words per Player
+              </h3>
+            </div>
           </div>
         </>
       )}

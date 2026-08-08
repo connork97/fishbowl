@@ -29,7 +29,7 @@ export default function Home({ user, setUser, setGame }: any) {
     <div className="containerMain">
       {!user ? (
         <>
-          <form onSubmit={handleNewUserSubmit} className="verticalWrapperMain">
+          <form onSubmit={handleNewUserSubmit} className="verticalWrapperMain" style={{ gap: '2rem'}}>
             <h1 className="titleMain">Welcome to Fishbowl</h1>
             <label htmlFor="newUserInput" className="inputLabelMain">
               First, please enter your name
@@ -40,6 +40,7 @@ export default function Home({ user, setUser, setGame }: any) {
               type="text"
               value={newUserInputVal}
               onChange={(e) => setNewUserInputVal(e.target.value)}
+              style={{fontSize: '1.5rem', width: '75%'}}
             />
             <button type="submit" className="buttonMain">
               Submit
@@ -48,7 +49,9 @@ export default function Home({ user, setUser, setGame }: any) {
         </>
       ) : (
         <>
-          <div className="verticalWrapperMain">
+          <div className="verticalWrapperMain"
+              style={{ gap: '3rem'}}
+          >
             <h1 className="titleMain">Welcome, {user}!</h1>
             <form
               className="verticalWrapperMain"
@@ -67,7 +70,6 @@ export default function Home({ user, setUser, setGame }: any) {
             {/* <h2>Or Join One By Code:</h2> */}
             <form
               className="verticalWrapperMain"
-              // className="flexColumn joinGameForm"
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!joinGameInput) {
@@ -88,6 +90,7 @@ export default function Home({ user, setUser, setGame }: any) {
                 placeholder="Ex) 2XBZ"
                 value={joinGameInput}
                 onChange={(e) => setJoinGameInput(e.target.value)}
+                style={{ fontSize: '1.5rem', width: '50%'}}
               />
               <button type="submit" className="buttonMain">
                 Join Game
