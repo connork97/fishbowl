@@ -1,10 +1,12 @@
 import type { Game } from "../types/Types";
 import { normalizeGameData } from "../utils/normalizeGameData";
 
+export const BASE_URL = "https://fishbowl-api.up.railway.app";
+
 export const getFishbowlGameByCode = async (gameCode: string) => {
   console.log("Fetching game data for code: ", gameCode);
   try {
-    const response = await fetch(`http://localhost:5555/games/${gameCode}`);
+    const response = await fetch(`${BASE_URL}/games/${gameCode}`);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -27,7 +29,7 @@ export const createFishbowlGame = async (
   fishbowlSettings: any,
 ) => {
   try {
-    const response = await fetch("http://localhost:5555/games/create", {
+    const response = await fetch(`${BASE_URL}/games/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -49,7 +51,7 @@ export const joinGameByCode = async (gameCode: string, user: string) => {
   console.log("Fetching game data for code: ", gameCode);
   try {
     const response = await fetch(
-      `http://localhost:5555/games/${gameCode}/join`,
+      `${BASE_URL}/games/${gameCode}/join`,
       {
         method: "PATCH",
         headers: {
@@ -84,7 +86,7 @@ export const joinFishbowlTeam = async (
   console.log(`Adding player ${user} to team ${teamName} in game ${gameCode}`);
   try {
     const response = await fetch(
-      `http://localhost:5555/games/${gameCode}/join-team`,
+      `${BASE_URL}/games/${gameCode}/join-team`,
       {
         method: "PATCH",
         headers: {
@@ -112,7 +114,7 @@ export const addFishbowlWordToGame = async (
 ) => {
   try {
     const response = await fetch(
-      `http://localhost:5555/games/${gameCode}/add-word`,
+      `${BASE_URL}/games/${gameCode}/add-word`,
       {
         method: "PATCH",
         headers: {
@@ -144,7 +146,7 @@ export const setGameStatus = async (
 ) => {
   try {
     const response = await fetch(
-      `http://localhost:5555/games/${gameCode}/status`,
+      `${BASE_URL}/games/${gameCode}/status`,
       {
         method: "PATCH",
         headers: {
@@ -171,7 +173,7 @@ export const updateFishbowlGame = async (updatedGame: Game) => {
   if (!updatedGame?.code) return console.error("Game code is missing in the updated game data");
   try {
     const response = await fetch(
-      `http://localhost:5555/games/${updatedGame.code}/update`,
+      `${BASE_URL}/games/${updatedGame.code}/update`,
       {
         method: "PATCH",
         headers: {

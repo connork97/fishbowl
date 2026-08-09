@@ -17,6 +17,10 @@ ALLOWED_ORIGINS = [
     "https://www.connorkormos.com",
     "http://connorkormos.com",
     "https://connorkormos.com",
+    "https://fishbowl.up.railway.app/",
+    "http://fishbowl.up.railway.app/",
+    "https://www.fishbowl.up.railway.app/",
+    "http://www.fishbowl.up.railway.app/"
 ]
 
 database_url = os.getenv("DATABASE_URL", "sqlite:///app.db")  # Default to SQLite if DATABASE_URL is not set
