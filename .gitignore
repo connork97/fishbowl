@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Add .venv from server directory to .gitignore
+.venv/
+server/.venv/

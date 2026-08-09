@@ -38,6 +38,10 @@ def publish_game_data(game_code: str):
 def hello_world():
     return jsonify({"message": "Hello, World!"})
 
+@app.route("/health")
+def health():
+    return jsonify({"status": "Server is healthy and running"}), 200
+
 
 @app.route("/games/create", methods=["POST"])
 def create_game():
