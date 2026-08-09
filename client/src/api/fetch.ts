@@ -34,6 +34,7 @@ export const createFishbowlGame = async (
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ hostName: user, settings: fishbowlSettings }),
     });
     const gameData = await response.json();
@@ -92,6 +93,7 @@ export const joinFishbowlTeam = async (
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ playerName: user, teamName }),
       },
     );
@@ -152,6 +154,7 @@ export const setGameStatus = async (
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ user, status }),
       },
     );
