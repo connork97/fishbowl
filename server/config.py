@@ -20,10 +20,16 @@ ALLOWED_ORIGINS = [
     "https://fishbowl.up.railway.app/",
     "http://fishbowl.up.railway.app/",
     "https://www.fishbowl.up.railway.app/",
-    "http://www.fishbowl.up.railway.app/"
+    "http://www.fishbowl.up.railway.app/",
+    "https://fishbowl.up.railway.app",
+    "http://fishbowl.up.railway.app",
+    "https://www.fishbowl.up.railway.app",
+    "http://www.fishbowl.up.railway.app",
 ]
 
-database_url = os.getenv("DATABASE_URL", "sqlite:///app.db")  # Default to SQLite if DATABASE_URL is not set
+database_url = os.getenv(
+    "DATABASE_URL", "sqlite:///app.db"
+)  # Default to SQLite if DATABASE_URL is not set
 if database_url.startswith("postgres://"):
     database_url = database_url.replace(
         "postgres://",
@@ -44,13 +50,15 @@ app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 
 # Some providers expose postgres:// URLs; SQLAlchemy expects postgresql://
 # if database_url.startswith("postgres://"):
-    # database_url = database_url.replace("postgres://", "postgresql://", 1)
+# database_url = database_url.replace("postgres://", "postgresql://", 1)
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # Disable extra tracking
 # app.config["SECRET_KEY"] = "my-secret-key"
 app.json.compact = False  # Pretty Print JSON in dev
 
-socketio = SocketIO(app, cors_allowed_origins=ALLOWED_ORIGINS)  # Allow all origins for SocketIO
+socketio = SocketIO(
+    app, cors_allowed_origins=ALLOWED_ORIGINS
+)  # Allow all origins for SocketIO
 
 # * Database
 db = SQLAlchemy(
