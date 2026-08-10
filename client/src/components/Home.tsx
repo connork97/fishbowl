@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { getFishbowlGameByCode, joinGameByCode } from "../api/fetch";
-import { normalizeGameData } from "../utils/normalizeGameData";
 
 import "../App.css";
 import { getLocalStorageGameCode, setLocalStoragePlayerName } from "../utils/localStorage";
