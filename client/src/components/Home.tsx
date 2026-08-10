@@ -21,8 +21,17 @@ export default function Home({ playerName, setPlayerName, setGame }: any) {
   const [joinGameInput, setJoinGameInput] = useState("");
 
   const joinGame = async (gameCode: string) => {
-    const gameData = await joinGameByCode(gameCode, playerName);
-    const normalizedGameData = normalizeGameData(gameData);
+    let normalizedGameData = await getFishbowlGameByCode(gameCode);
+    if (normalizedGameData?.players.includes(playerName)) {
+      if (!confirm(`There is already a player named ${playerName} in game ${gameCode}. Continue joining the game?`)) { 
+        return;
+      }
+      setGame(normalizedGameData);
+      navigate(`/lobby/${gameCode}`);
+      return;
+    }
+    
+    normalizedGameData = await joinGameByCode(gameCode, playerName);
     setGame(normalizedGameData);
     navigate(`/lobby/${gameCode}`);
   };
@@ -74,6 +83,10 @@ export default function Home({ playerName, setPlayerName, setGame }: any) {
               style={{ gap: '3rem'}}
           >
             <h1 className="titleMain">Welcome, {playerName}!</h1>
+            <button onClick={() => {
+              setPlayerName("");
+              localStorage.removeItem("playerName");
+            }} style={{border: 'none', background: 'transparent', marginTop: '-4rem', textDecoration: 'underline', color: 'white'}}>Change Name</button>
             <form
               className="verticalWrapperMain"
               onSubmit={(e) => e.preventDefault()}

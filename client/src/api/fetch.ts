@@ -72,7 +72,6 @@ export const joinGameByCode = async (gameCode: string, user: string) => {
     }
 
     const gameData = await response.json();
-    console.log("Fetched game data: ", gameData);
     const normalizedGameData = normalizeGameData(gameData);
     return normalizedGameData;
   } catch (error) {
