@@ -1,8 +1,28 @@
 WHERE I LEFT OFF:
 
-I just created a (theoretically correct) normalization function on the back end
-   For taking in a whole new game object, and updating the current one
 
-It is not reflecting the proper changes via Socket.io though
-   On the first player's end, when the timer expires, it momentarily switches to the next team/player
-      But then immediately reverts back to player 1/team 1
+
+MAIN FEATURES TO ADD:
+
+-Add sessions to persist current user and game
+   -For games, if there is a game cookie, query the DB to see if it is active.
+      -If it is, give the option to rejoin.
+      -If not, display a status screen to explain
+
+-One phone only feature
+
+
+
+SMALL FEATURES TO ADD:
+
+-Make sure that Minimum Players are in the game, players are on teams, and words are present before starting game
+
+-Show words written by player
+   -Show the actual strings for the player who wrote it
+   -Show the number of words submitted by anyone else
+
+-Prevent players from submitting more words than in settings?
+   -Or allow that as a guideline?
+
+-Prevent more words than the per player total times the number of players?
+   -Or allow it as a guideline?

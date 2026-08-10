@@ -9,10 +9,19 @@ import { socket } from "./socket";
 import { normalizeGameData } from "./utils/normalizeGameData";
 
 import "./App.css";
+import { getLocalStoragePlayerName } from "./utils/localStorage";
 
 function App() {
   const [game, setGame] = useState<Game | null>(null);
-  const [user, setUser] = useState("");
+  const [playerName, setPlayerName] = useState("");
+
+  useEffect(() => {
+    if (playerName) return;
+    const localStoragePlayer = getLocalStoragePlayerName();
+    if (localStoragePlayer) {
+      setPlayerName(localStoragePlayer);
+    }
+  }, [])
 
   // * Connect to Socket Effect * //
   useEffect(() => {
@@ -47,19 +56,19 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<Home user={user} setUser={setUser} setGame={setGame} />}
+            element={<Home playerName={playerName} setPlayerName={setPlayerName} setGame={setGame} />}
           />
           <Route
             path="/create-game"
-            element={<CreateGame user={user} setGame={setGame} />}
+            element={<CreateGame playerName={playerName} setGame={setGame} />}
           />
           <Route
             path="/lobby/:gameCode"
-            element={<Lobby game={game} setGame={setGame} user={user} />}
+            element={<Lobby game={game} setGame={setGame} playerName={playerName} />}
           />
           <Route
             path="/game/:gameCode"
-            element={<Fishbowl user={user} game={game} setGame={setGame} />}
+            element={<Fishbowl playerName={playerName} game={game} setGame={setGame} />}
           />
         </Routes>
       </BrowserRouter>

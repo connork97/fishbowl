@@ -12,11 +12,11 @@ import { socket } from "../socket";
 export default function Lobby({
   game,
   setGame,
-  user,
+  playerName,
 }: {
   game: Game | null;
   setGame: any;
-  user: string;
+  playerName: string;
 }) {
   const timerDelay = 1;
 
@@ -48,7 +48,7 @@ export default function Lobby({
   }, [game?.status]);
 
   const joinTeam = async (teamName: string) => {
-    const updatedGameData = await joinFishbowlTeam(user, teamName, gameCode);
+    const updatedGameData = await joinFishbowlTeam(playerName, teamName, gameCode);
     if (updatedGameData) {
       setGame(updatedGameData);
     }
@@ -64,7 +64,7 @@ export default function Lobby({
     }
     const updatedGameData = await addFishbowlWordToGame(
       trimmedWord,
-      user,
+      playerName,
       gameCode,
     );
     if (updatedGameData) {
@@ -74,16 +74,16 @@ export default function Lobby({
   };
 
   const startGame = async () => {
-    if (user !== game?.hostName) {
+    if (playerName !== game?.hostName) {
       alert("Only the host can start the game.");
       return;
     }
     if (!window.confirm("Are you sure you want to start the game?")) return;
-    const setGameStartingData = await setGameStatus(gameCode, user, "Starting");
+    const setGameStartingData = await setGameStatus(gameCode, playerName, "Starting");
     if (setGameStartingData) {
       setGame(setGameStartingData);
       setTimeout(async () => {
-        const setGameActiveData = await setGameStatus(gameCode, user, "Active");
+        const setGameActiveData = await setGameStatus(gameCode, playerName, "Active");
         if (setGameActiveData) {
           setGame(setGameActiveData);
         }
@@ -142,12 +142,12 @@ export default function Lobby({
 
   timePerRoundString += " Per Round";
 
-  if (!game && !user) {
-    return <h1>Loading game and user...</h1>;
+  if (!game && !playerName) {
+    return <h1>Loading game and playerName...</h1>;
   } else if (!game) {
     return <h1>Finding game...</h1>;
-  } else if (!user) {
-    return <h1>Finding user...</h1>;
+  } else if (!playerName) {
+    return <h1>Finding playerName...</h1>;
   }
 
   return (
@@ -196,7 +196,7 @@ export default function Lobby({
           <div className="verticalWrapperMain" style={{ gap: 0 }}>
             <h1 className="titleMain">{game.hostName}'s Fishbowl Lobby</h1>
             <h1 className="titleMain">Game Code: {game.code}</h1>
-            {user === game.hostName && (
+            {playerName === game.hostName && (
               <button
                 className="buttonMain"
                 onClick={() => startGame()}

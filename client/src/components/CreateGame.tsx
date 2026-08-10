@@ -19,14 +19,14 @@ type FishbowlSettings = {
   };
 };
 
-export function CreateGame({ user, setGame }: { user: any; setGame: any }) {
+export function CreateGame({ playerName, setGame }: { playerName: any; setGame: any }) {
   const navigate = useNavigate();
 
   const [setupIndex, setSetupIndex] = useState<number>(0);
 
   const [fishbowlSettings, setFishbowlSettings] = useState<FishbowlSettings>({
     teams: [
-      { name: `Team 1`, players: [user] },
+      { name: `Team 1`, players: [playerName] },
       { name: "Team 2", players: [] },
     ],
     wordsPerPlayer: 3,
@@ -35,7 +35,7 @@ export function CreateGame({ user, setGame }: { user: any; setGame: any }) {
   });
 
   const createGame = async () => {
-    const normalizedGameData = await createFishbowlGame(user, fishbowlSettings);
+    const normalizedGameData = await createFishbowlGame(playerName, fishbowlSettings);
     if (!normalizedGameData) {
       alert("Error creating game. Please try again.");
       return;
@@ -51,7 +51,7 @@ export function CreateGame({ user, setGame }: { user: any; setGame: any }) {
         onSubmit={(e) => {
           e.preventDefault();
           console.log("Creating game with settings: ", fishbowlSettings);
-          if (!user)
+          if (!playerName)
             return alert(
               "Please go back and enter your name before creating a game.",
             );

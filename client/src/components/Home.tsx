@@ -4,22 +4,24 @@ import { joinGameByCode } from "../api/fetch";
 import { normalizeGameData } from "../utils/normalizeGameData";
 
 import "../App.css";
+import { setLocalStoragePlayerName } from "../utils/localStorage";
 
-export default function Home({ user, setUser, setGame }: any) {
+export default function Home({ playerName, setPlayerName, setGame }: any) {
   const navigate = useNavigate();
 
-  const handleNewUserSubmit = (e: any) => {
+  const handleNewPlayerSubmit = (e: any) => {
     e.preventDefault();
-    console.log("new user input val: ", newUserInputVal);
-    setUser(newUserInputVal);
+    console.log("new player input val: ", newPlayerInputVal);
+    setPlayerName(newPlayerInputVal);
+    setLocalStoragePlayerName(newPlayerInputVal);
   };
 
-  const [newUserInputVal, setNewUserInputVal] = useState("");
+  const [newPlayerInputVal, setNewPlayerInputVal] = useState("");
 
   const [joinGameInput, setJoinGameInput] = useState("");
 
   const joinGame = async (gameCode: string) => {
-    const gameData = await joinGameByCode(gameCode, user);
+    const gameData = await joinGameByCode(gameCode, playerName);
     const normalizedGameData = normalizeGameData(gameData);
     setGame(normalizedGameData);
     navigate(`/lobby/${gameCode}`);
@@ -27,19 +29,19 @@ export default function Home({ user, setUser, setGame }: any) {
 
   return (
     <div className="containerMain">
-      {!user ? (
+      {!playerName ? (
         <>
-          <form onSubmit={handleNewUserSubmit} className="verticalWrapperMain" style={{ gap: '2rem'}}>
+          <form onSubmit={handleNewPlayerSubmit} className="verticalWrapperMain" style={{ gap: '2rem'}}>
             <h1 className="titleMain">Welcome to Fishbowl</h1>
-            <label htmlFor="newUserInput" className="inputLabelMain">
+            <label htmlFor="newPlayerInput" className="inputLabelMain">
               First, please enter your name
             </label>
             <input
-              id="newUserInput"
+              id="newPlayerInput"
               className="inputMain"
               type="text"
-              value={newUserInputVal}
-              onChange={(e) => setNewUserInputVal(e.target.value)}
+              value={newPlayerInputVal}
+              onChange={(e) => setNewPlayerInputVal(e.target.value)}
               style={{fontSize: '1.5rem', width: '75%'}}
             />
             <button type="submit" className="buttonMain">
@@ -52,7 +54,7 @@ export default function Home({ user, setUser, setGame }: any) {
           <div className="verticalWrapperMain"
               style={{ gap: '3rem'}}
           >
-            <h1 className="titleMain">Welcome, {user}!</h1>
+            <h1 className="titleMain">Welcome, {playerName}!</h1>
             <form
               className="verticalWrapperMain"
               onSubmit={(e) => e.preventDefault()}

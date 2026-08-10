@@ -9,11 +9,11 @@ import { useNavigate } from "react-router-dom";
 export default function Fishbowl({
   game,
   setGame,
-  user,
+  playerName,
 }: {
   game: Game | null;
   setGame: any;
-  user: string;
+  playerName: string;
 }) {
   const navigate = useNavigate();
 
@@ -241,7 +241,7 @@ export default function Fishbowl({
       <h1 className="titleMain">Game Component</h1>
       </>)}
       <div className="verticalWrapperMain">
-        {user !== currentPlayer ? (
+        {playerName !== currentPlayer ? (
           <>
             <h2 className="headerMain">
               Round {activeRoundIndex + 1}: {currentRound}
@@ -255,10 +255,10 @@ export default function Fishbowl({
           </>
         ) : (
           !roundHasStarted && (
-            <h1>You're up {user}</h1>
+            <h1>You're up {playerName}</h1>
           )
         )}
-        {user === currentPlayer && (
+        {playerName === currentPlayer && (
           <div>
             {!roundHasStarted ? (
               <button
