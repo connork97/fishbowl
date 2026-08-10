@@ -6,7 +6,7 @@ import { normalizeGameData } from "../utils/normalizeGameData";
 import "../App.css";
 import { getLocalStorageGameCode, setLocalStoragePlayerName } from "../utils/localStorage";
 
-export default function Home({ playerName, setPlayerName, setGame, game }: any) {
+export default function Home({ playerName, setPlayerName, setGame }: any) {
   const navigate = useNavigate();
 
   const handleNewPlayerSubmit = (e: any) => {

@@ -74,7 +74,7 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<Home playerName={playerName} setPlayerName={setPlayerName} game={game} setGame={setGame} />}
+            element={<Home playerName={playerName} setPlayerName={setPlayerName} setGame={setGame} />}
           />
           <Route
             path="/create-game"

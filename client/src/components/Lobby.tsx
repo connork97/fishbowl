@@ -8,7 +8,7 @@ import {
 } from "../api/fetch";
 
 import { socket } from "../socket";
-import { removeLocalStorageGameCode, setLocalStorageGameCode } from "../utils/localStorage";
+import { setLocalStorageGameCode } from "../utils/localStorage";
 
 export default function Lobby({
   game,
