@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { joinGameByCode } from "../api/fetch";
+import { getFishbowlGameByCode, joinGameByCode } from "../api/fetch";
 import { normalizeGameData } from "../utils/normalizeGameData";
 
 import "../App.css";
-import { setLocalStoragePlayerName } from "../utils/localStorage";
+import { getLocalStorageGameCode, setLocalStoragePlayerName } from "../utils/localStorage";
 
-export default function Home({ playerName, setPlayerName, setGame }: any) {
+export default function Home({ playerName, setPlayerName, setGame, game }: any) {
   const navigate = useNavigate();
 
   const handleNewPlayerSubmit = (e: any) => {
@@ -26,6 +26,25 @@ export default function Home({ playerName, setPlayerName, setGame }: any) {
     setGame(normalizedGameData);
     navigate(`/lobby/${gameCode}`);
   };
+
+  
+  const checkLastGameCode = async () => {
+    const lastGameCode = getLocalStorageGameCode();
+    console.log("lastGameCode: ", lastGameCode);
+    if (lastGameCode) {
+      const lastGameData = await getFishbowlGameByCode(lastGameCode);
+      if (!lastGameData) return;
+      if (lastGameData.status !== 'Complete' && window.confirm(`You have a saved game with code ${lastGameCode}. Would you like to resume it?`)) {
+        setGame(lastGameData);
+        navigate(`/lobby/${lastGameCode}`);
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (!playerName) return;
+    checkLastGameCode();
+  }, [playerName]);
 
   return (
     <div className="containerMain">

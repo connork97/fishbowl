@@ -17,7 +17,8 @@ export const getFishbowlGameByCode = async (gameCode: string) => {
 
     const gameData = await response.json();
     console.log("Fetched game data: ", gameData);
-    return gameData;
+    const normalizedGameData = normalizeGameData(gameData);
+    return normalizedGameData;
   } catch (error) {
     console.error("Error fetching game data:", error);
     alert(`${error instanceof Error ? error.message : error}`);
@@ -72,7 +73,8 @@ export const joinGameByCode = async (gameCode: string, user: string) => {
 
     const gameData = await response.json();
     console.log("Fetched game data: ", gameData);
-    return gameData;
+    const normalizedGameData = normalizeGameData(gameData);
+    return normalizedGameData;
   } catch (error) {
     console.error("Error fetching game data:", error);
     alert(error instanceof Error ? error.message : error);

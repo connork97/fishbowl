@@ -12,6 +12,7 @@ import "./App.css";
 import { getLocalStoragePlayerName } from "./utils/localStorage";
 
 function App() {
+
   const [game, setGame] = useState<Game | null>(null);
   const [playerName, setPlayerName] = useState("");
 
@@ -22,6 +23,23 @@ function App() {
       setPlayerName(localStoragePlayer);
     }
   }, [])
+
+  // const checkLastGameCode = async () => {
+  //   const lastGameCode = getLocalStorageGameCode();
+  //   if (lastGameCode) {
+  //     const lastGameData = await getFishbowlGameByCode(lastGameCode);
+  //     if (!lastGameData) return;
+  //     if (lastGameData.status === 'Active' && window.confirm(`You have a saved game with code ${lastGameCode}. Would you like to resume it?`)) {
+  //       setGame(lastGameData);
+  //       navigate(`/lobby/${lastGameCode}`);
+  //     }
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   if (game?.code || !playerName) return;
+  //   checkLastGameCode();
+  // }, [playerName]);
 
   // * Connect to Socket Effect * //
   useEffect(() => {
@@ -56,7 +74,7 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<Home playerName={playerName} setPlayerName={setPlayerName} setGame={setGame} />}
+            element={<Home playerName={playerName} setPlayerName={setPlayerName} game={game} setGame={setGame} />}
           />
           <Route
             path="/create-game"

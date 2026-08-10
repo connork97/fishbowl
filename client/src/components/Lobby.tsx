@@ -8,6 +8,7 @@ import {
 } from "../api/fetch";
 
 import { socket } from "../socket";
+import { removeLocalStorageGameCode, setLocalStorageGameCode } from "../utils/localStorage";
 
 export default function Lobby({
   game,
@@ -27,7 +28,9 @@ export default function Lobby({
   useEffect(() => {
     if (!gameCode) return;
     socket.emit("join_game", gameCode);
+    setLocalStorageGameCode(gameCode);
   }, [gameCode]);
+
 
   const [redirectTimer, setRedirectTimer] = useState<number>(timerDelay);
 
