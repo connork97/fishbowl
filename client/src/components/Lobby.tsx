@@ -129,7 +129,7 @@ export default function Lobby({
   let timePerRoundString = "";
 
   if (minutesPerRound > 0) {
-    timePerRoundString += `${minutesPerRound} minute${
+    timePerRoundString += `${minutesPerRound} Minute${
       minutesPerRound > 1 ? "s" : ""
     }`;
   }
@@ -140,7 +140,7 @@ export default function Lobby({
     }`;
   }
 
-  timePerRoundString += " per round.";
+  timePerRoundString += " Per Round";
 
   if (!game && !user) {
     return <h1>Loading game and user...</h1>;
@@ -261,21 +261,23 @@ export default function Lobby({
                 Add Word
               </button>
             </form>
+            <div style={{marginTop: '1rem', padding: '2rem', borderRadius: '0.5rem', background: 'rgba(0, 0, 0, 0.5)'}}>
+              <h3 className="headerMain" style={{textAlign: 'center'}}><u>Additional Settings:</u></h3>
             <div className="verticalWrapperMain" style={{ marginTop: "1rem" }}>
               {game.settings.rounds.map((round, index) => (
-                <p key={index} style={{ fontSize: "1.5rem" }}>
+                <p key={index} className="alignLeft" style={{ fontSize: "1.5rem" }}>
                   <b>Round {index + 1}:</b>{" "}
                   <span style={{ marginLeft: "0.5rem" }}>{round}</span>
                 </p>
               ))}
             </div>
             <div className="verticalWrapperMain" style={{ marginTop: "1rem" }}>
-              <h3 className="headerMain">Additional Settings:</h3>
-              <h3 className="headerMain">{timePerRoundString}</h3>
-              <h3 className="headerMain">
-                {game.settings.wordsPerPlayer} Words per Player
+              <h3 className="headerMain alignLeft">{timePerRoundString}</h3>
+              <h3 className="headerMain alignLeft">
+                {game.settings.wordsPerPlayer} Words Per Player
               </h3>
             </div>
+              </div>
           </div>
         </>
       )}

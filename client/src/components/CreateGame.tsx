@@ -78,28 +78,28 @@ export function CreateGame({ user, setGame }: { user: any; setGame: any }) {
             setFishbowlSettings={setFishbowlSettings}
           />
         )}
-
-        {setupIndex < 2 && (
-          <button
-            className="buttonMain"
-            style={{ marginTop: "2rem" }}
-            type="button"
-            onClick={() => setSetupIndex(setupIndex + 1)}
-          >
-            Looks Good
-          </button>
-        )}
         {setupIndex > 0 && (
           <button
-            className="buttonMain"
-            style={{ marginTop: "2rem" }}
-            type="button"
-            onClick={() => setSetupIndex(setupIndex - 1)}
-            disabled={setupIndex === 0}
+          className="buttonMain"
+          style={{ marginTop: "2rem" }}
+          type="button"
+          onClick={() => setSetupIndex(setupIndex - 1)}
+          disabled={setupIndex === 0}
           >
             Go Back
           </button>
         )}
+        
+                {setupIndex < 2 && (
+                  <button
+                    className="buttonMain"
+                    style={{ marginTop: "2rem" }}
+                    type="button"
+                    onClick={() => setSetupIndex(setupIndex + 1)}
+                  >
+                    Looks Good
+                  </button>
+                )}
 
         {setupIndex === 2 && (
           <div className="verticalWrapperMain">

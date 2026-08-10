@@ -94,8 +94,7 @@ def create_game():
 @app.route("/games/<string:game_code>", methods=["GET"])
 def get_game(game_code):
     pretty_print_message(f"Received GET request for game code {game_code}")
-
-    game = Game.query.filter_by(code=game_code).first()
+    game = Game.query.filter_by(code=game_code).order_by(Game.created_at.desc()).first()
 
     if not game:
         return jsonify({"error": "Game not found"}), 404
@@ -110,8 +109,7 @@ def join_game(game_code):
     pretty_print_json(form_data)
 
     player_name = form_data.get("playerName")
-
-    game = Game.query.filter_by(code=game_code).first()
+    game = Game.query.filter_by(code=game_code).order_by(Game.created_at.desc()).first()
 
     if not game:
         return jsonify({"error": "Game not found"}), 404
@@ -135,7 +133,7 @@ def add_player_to_team(game_code):
     player_name = form_data.get("playerName")
     team_name = form_data.get("teamName")
 
-    game = Game.query.filter_by(code=game_code).first()
+    game = Game.query.filter_by(code=game_code).order_by(Game.created_at.desc()).first()
 
     if not game:
         return jsonify({"error": "Game not found"}), 404
@@ -197,7 +195,7 @@ def add_word_to_game(game_code):
 
     word = form_data.get("word")
 
-    game = Game.query.filter_by(code=game_code).first()
+    game = Game.query.filter_by(code=game_code).order_by(Game.created_at.desc()).first()
 
     if not game:
         return jsonify({"error": "Game not found"}), 404
@@ -227,7 +225,7 @@ def set_status(game_code):
     if not updated_game_status:
         return jsonify({"error": "Status not provided"}), 400
 
-    game = Game.query.filter_by(code=game_code).first()
+    game = Game.query.filter_by(code=game_code).order_by(Game.created_at.desc()).first()
 
     if not game:
         return jsonify({"error": "Game not found"}), 404

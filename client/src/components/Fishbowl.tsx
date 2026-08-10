@@ -237,7 +237,9 @@ export default function Fishbowl({
 
   return (
     <div className="containerMain">
+      {!roundHasStarted && (<>
       <h1 className="titleMain">Game Component</h1>
+      </>)}
       <div className="verticalWrapperMain">
         {user !== currentPlayer ? (
           <>
@@ -252,9 +254,9 @@ export default function Fishbowl({
             </h2>
           </>
         ) : (
-          <>
+          !roundHasStarted && (
             <h1>You're up {user}</h1>
-          </>
+          )
         )}
         {user === currentPlayer && (
           <div>
@@ -268,15 +270,16 @@ export default function Fishbowl({
               </button>
             ) : (
               <div>
-                <h3 className="headerMain">
+                <h3 className="headerMain" style={{textAlign: "center"}}>
                   Time Remaining: {roundTimer} seconds
                 </h3>
-                <h3 className="headerMain">
+                <h3 className="headerMain" style={{textAlign: "center"}}>
                   Words Remaining: {availableWords.length}
                 </h3>
                 {availableWords.length > 0 && (
-                  <div className="verticalWrapperMain" style={{ gap: "5rem" }}>
-                    <h3 className="titleMain">Current Word: {currentWord}</h3>
+                  <div className="verticalWrapperMain" style={{ gap: "2.5rem" }}>
+                    {/* <h3 className="titleMain">Current Word:</h3> */}
+                      <h1 className="titleMain"><u>{currentWord}</u></h1>
                     <div
                       className="verticalWrapperMain"
                       style={{ gap: "5rem" }}
